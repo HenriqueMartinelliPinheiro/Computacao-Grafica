@@ -1,0 +1,3 @@
+﻿  casaCompGrafica.cpp
+C:\Users\Aluno\Desktop\casaCompGrafica\casaCompGrafica\casaCompGrafica.cpp(83,40): warning C4305: 'argumento': truncamento de 'double' para 'GLclampf'
+  casaCompGrafica.vcxproj -> C:\Users\Aluno\Desktop\casaCompGrafica\x64\Debug\casaCompGrafica.exe
