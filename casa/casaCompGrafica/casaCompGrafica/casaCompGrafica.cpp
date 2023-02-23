@@ -117,6 +117,7 @@ void display()
     glEnd();
 
     glPointSize(7);
+    glEnable(GL_POINT_SMOOTH);
     glBegin(GL_POINTS);
     glColor3ub(0, 0, 0);
     glVertex2f(-55, -75);
