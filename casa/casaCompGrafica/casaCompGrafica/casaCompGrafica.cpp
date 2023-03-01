@@ -85,42 +85,71 @@ void display()
     glClear(GL_COLOR_BUFFER_BIT);  // limpa a tela com a cor do fundo
 
     glBegin(GL_QUADS);
-    glColor3ub(255, 215, 0);
-    glVertex2f(-80, 100);
-    glVertex2f(-80, -100);
-    glVertex2f(80, -100);
-    glVertex2f(80, 100);
+        glColor3ub(255, 215, 0);
+        glVertex2f(-80, 100);
+        glVertex2f(-80, -100);
+        glVertex2f(80, -100);
+        glVertex2f(80, 100);
     glEnd();
 
     glBegin(GL_QUADS);
-    glColor3ub(46, 139, 8);
-    glVertex2f(-200, -200);
-    glVertex2f(-200, -100);
-    glVertex2f(200, -100);
-    glVertex2f(200, -200);
+        glColor3ub(46, 139, 8);
+        glVertex2f(-200, -200);
+        glVertex2f(-200, -100);
+        glVertex2f(200, -100);
+        glVertex2f(200, -200);
     glEnd();
 
 
     glBegin(GL_TRIANGLES);
-    glColor3ub(227, 58, 38);
-    glVertex2f(-80, 100);
-    glVertex2f(80, 100);
-    glVertex2f(0, 150);
+        glColor3ub(227, 58, 38);
+        glVertex2f(-80, 100);
+        glVertex2f(80, 100);
+        glVertex2f(0, 150);
     glEnd();
 
     glBegin(GL_QUADS);
-    glColor3ub(191, 112, 34);
-    glVertex2f(-80, -60);
-    glVertex2f(-40, -60);
-    glVertex2f(-40, -100);
-    glVertex2f(-80, -100);
+        glColor3ub(191, 112, 34);
+        glVertex2f(-80, -60);
+        glVertex2f(-40, -60);
+        glVertex2f(-40, -100);
+        glVertex2f(-80, -100);
     glEnd();
 
-    glPointSize(7);
-    glEnable(GL_POINT_SMOOTH);
-    glBegin(GL_POINTS);
-    glColor3ub(0, 0, 0);
-    glVertex2f(-55, -75);
+    glPointSize(10);
+        glEnable(GL_POINT_SMOOTH);
+        glBegin(GL_POINTS);
+        glColor3ub(0, 0, 0);
+        glVertex2f(-55, -75);
+    glEnd();
+
+    glLineWidth(5);
+    glBegin(GL_LINES);
+        glColor3ub(255, 255, 255);
+        glVertex2f(-30, 20);
+        glVertex2f(-30, -20);
+    glEnd();
+
+   
+    glBegin(GL_LINES);
+        glColor3ub(0, 0, 204);
+        glVertex2f(10, 20);
+        glVertex2f(10, -20);
+    glEnd();
+
+    glBegin(GL_LINES);
+        glColor3ub(255, 255, 255);
+        glVertex2f(-30, -20);
+        glColor3ub(0, 0, 204);
+        glVertex2f(10, -20);
+    glEnd();
+
+
+    glBegin(GL_LINES);
+        glColor3ub(255, 255, 255);
+        glVertex2f(-30, 20);
+        glColor3ub(0, 0, 255);
+        glVertex2f(10, 20);
     glEnd();
 
     glFlush(); // executa o desenho
