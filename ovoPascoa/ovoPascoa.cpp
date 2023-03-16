@@ -16,6 +16,8 @@ void meuOvo();
 void chapeuOvo();
 void lacoEsquerdo();
 void lacoDireita();
+void lacoMeio();
+void logo();
 
 int main(int argc, char** argv)
 {
@@ -41,6 +43,8 @@ void desenhar()
 	chapeuOvo();
 	lacoDireita();
 	lacoEsquerdo();
+	lacoMeio();
+	logo();
 }
 
 void display()
@@ -86,46 +90,69 @@ void chapeuOvo() {
 	glEnd();
 }
 
+void logo() {
+	glLineWidth(1);
+	GLfloat circ_pnt = 300;
+	GLfloat ang, raioX = 25.0f, raioY = 25.0f;
+
+	glColor3ub(255, 128, 0);  // cor
+	glBegin(GL_POLYGON);
+	for (int i = 0; i < circ_pnt; i++)
+	{
+		ang = (2 * PI * i) / circ_pnt;
+		glVertex2f(cos(ang) * raioX, sin(ang) * raioY);
+	}
+	glEnd();
+}
 void lacoDireita() {
+	glLineWidth(5);
 	glPushMatrix();
 	glTranslatef(40,80,0);
 	glRotated(10, 0, 0, 1);
-		GLfloat circ_pnt = 300;
-		GLfloat ang, raioX = 40.0f, raioY = 10.0f;
+	GLfloat circ_pnt = 300;
+	GLfloat ang, raioX = 35.0f, raioY = 10.0f;
 	
-		glColor3ub(255, 128, 0);  // cor
-		glBegin(GL_LINE_LOOP);
-		for (int i = 0; i < circ_pnt; i++)
-		{
-			ang = (2 * PI * i) / circ_pnt;
-			glVertex2f(cos(ang) * raioX, sin(ang) * raioY);
-		}
-		glEnd();
-		glPopMatrix();
+	glColor3ub(255, 128, 0);  // cor
+	glBegin(GL_LINE_LOOP);
+	for (int i = 0; i < circ_pnt; i++)
+	{
+		ang = (2 * PI * i) / circ_pnt;
+		glVertex2f(cos(ang) * raioX, sin(ang) * raioY);
 	}
+	glEnd();
+	glPopMatrix();
+}
 	
-	void lacoEsquerdo() {
-		glPushMatrix();
-		glRotated(-10, 0, 0, 1);
-		glTranslatef(-52, 73, 0);
-		GLfloat circ_pnt = 300;
-		GLfloat ang, raioX = 40.0f, raioY = 10.0f;
+void lacoEsquerdo() {
+	glLineWidth(5);
+	glPushMatrix();
+	glRotated(-10, 0, 0, 1);
+	glTranslatef(-52, 73, 0);
+	GLfloat circ_pnt = 300;
+	GLfloat ang, raioX = 35.0f, raioY = 10.0f;
 	
-		glColor3ub(255, 128, 0);  // cor
-		glBegin(GL_LINE_LOOP);
-		for (int i = 0; i < circ_pnt; i++)
-		{
-			ang = (2 * PI * i) / circ_pnt;
-			glVertex2f(cos(ang) * raioX, sin(ang) * raioY);
-		}
-		glEnd();
-		glPopMatrix();
+	glColor3ub(255, 128, 0);  // cor
+	glBegin(GL_LINE_LOOP);
+	for (int i = 0; i < circ_pnt; i++)
+	{
+		ang = (2 * PI * i) / circ_pnt;
+		glVertex2f(cos(ang) * raioX, sin(ang) * raioY);
 	}
+	glEnd();
+	glPopMatrix();
+}
+
+void lacoMeio() {
+	glEnable(GL_POINT_SMOOTH);
+	glPointSize(20);
+	glColor3ub(255, 128, 0);  // cor
+	glBegin(GL_POINTS);
+	glVertex2f(0,75);
+	glEnd();
+}
 
 void tela(GLsizei w, GLsizei h)
 {
-
-
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
