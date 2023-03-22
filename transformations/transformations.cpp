@@ -18,6 +18,7 @@ void quadrado();
 void retangulo();
 void triangulo();
 void rotacaoQuadrado();
+void rotacaoTriangulo();
 
 int main(int argc, char** argv)
 {
@@ -71,9 +72,7 @@ void keyboard(unsigned char tecla, int x, int y)
 		printf("\n o valor do zoom e %.2f\n", zoom);
 	}
 
-
 	glutPostRedisplay();
-
 
 }
 
@@ -81,6 +80,14 @@ void rotacaoQuadrado() {
 	glPushMatrix();
 	glRotated(rotacao, 0, 0, 1);
 	quadrado();
+	glRotated(0, 0, 0, 1);
+	glPopMatrix();
+}
+
+void rotacaoTriangulo() {
+	glPushMatrix();
+	glRotated(rotacao, 0, 0, 1);
+	triangulo();
 	glRotated(0, 0, 0, 1);
 	glPopMatrix();
 }
@@ -93,7 +100,7 @@ void quadrado() {
 	glVertex2f(-10, 50);
 	glVertex2f(-30, 50);
 
-	glEnd();	
+	glEnd();
 }
 
 void triangulo() {
@@ -123,7 +130,7 @@ void desenhar()
 	//quadrado();
 	//rotacaoQuadrado();
 	rotacaoQuadrado();
-	triangulo();
+	rotacaoTriangulo();
 	retangulo();
 	//glRotated(0, 0, 0,1);
 	//glScalef(1, 1, 0);
