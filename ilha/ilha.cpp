@@ -68,37 +68,41 @@ void desenhar()
 {
 	glLoadIdentity();
 	areia();
-//	glTranslatef((janela_largura) / 2, (janela_altura) / 2, 0);
-//	glBegin(GL_TRIANGLES);
-//	glColor3f(1.0, 0.0, 0.0); // cor
-//	glVertex2f(-100, -100);
-//	glVertex2f(0, 0);
-//	glVertex2f(100, -100);
-//	glEnd();
-//	// Especificar o local aonde o desenho acontece: bem no centro da janela
-//	glTranslatef(tx, ty, 0.0f);
-//	glBegin(GL_QUADS);
-//	glColor3f(1.0, 1.0, 0.0); // cor
-//	glVertex2f(-30, 30);
-//	glVertex2f(-10, 30);
-//	glVertex2f(-10, 50);
-//	glVertex2f(-30, 50);
-//	glEnd();
+	//	glTranslatef((janela_largura) / 2, (janela_altura) / 2, 0);
+	//	glBegin(GL_TRIANGLES);
+	//	glColor3f(1.0, 0.0, 0.0); // cor
+	//	glVertex2f(-100, -100);
+	//	glVertex2f(0, 0);
+	//	glVertex2f(100, -100);
+	//	glEnd();
+	//	// Especificar o local aonde o desenho acontece: bem no centro da janela
+	//	glTranslatef(tx, ty, 0.0f);
+	//	glBegin(GL_QUADS);
+	//	glColor3f(1.0, 1.0, 0.0); // cor
+	//	glVertex2f(-30, 30);
+	//	glVertex2f(-10, 30);
+	//	glVertex2f(-10, 50);
+	//	glVertex2f(-30, 50);
+	//	glEnd();
 }
 
 void areia() {
+	glPushMatrix();
 	GLfloat circ_pnt = 300;
 	GLfloat ang, raioX = 100.0f, raioY = 100.0f;
 
 	glColor3ub(255, 255, 128);  // cor
 	glBegin(GL_POLYGON);
-	for (int i = 0; i < circ_pnt/2; i++)
+	for (int i = 0; i < circ_pnt / 2; i++)
 	{
 		ang = (2 * PI * i) / circ_pnt;
 		glVertex2f(cos(ang) * raioX, sin(ang) * raioY);
 		//printf("%f   %f\n", cos(ang) * raioX, sin(ang) * raioY);
 	}
 	glEnd();
+
+	glTranslatef(100,100,0);
+	glPopMatrix();
 }
 
 void display()
@@ -108,7 +112,7 @@ void display()
 	glClearColor(0.5f, 0.5f, 1.0f, 1.0f); // cor do fundo
 	glClear(GL_COLOR_BUFFER_BIT); // EXECUTA LIMPESA
 	// Especificar o local aonde o desenho acontece: bem no centro da janela maistranslacao
-		//glTranslatef(janela_largura / 2, janela_altura/2, 0.0f);
+	glTranslatef(janela_largura / 2, janela_altura/2, 0.0f);
 	glViewport(0, 0, janela_largura, janela_altura);
 	desenhar();
 	glFlush(); // execute o desenho
