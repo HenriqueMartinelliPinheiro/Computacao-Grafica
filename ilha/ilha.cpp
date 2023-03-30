@@ -18,6 +18,7 @@ void tela(GLsizei w, GLsizei h);
 void keyboard(unsigned char tecla, int x, int y);
 void anima(int valor);
 void areia();
+void pal();
 
 int main(int argc, char** argv)
 {
@@ -68,13 +69,9 @@ void desenhar()
 {
 	glLoadIdentity();
 	areia();
+	pal();
+
 	//	glTranslatef((janela_largura) / 2, (janela_altura) / 2, 0);
-	//	glBegin(GL_TRIANGLES);
-	//	glColor3f(1.0, 0.0, 0.0); // cor
-	//	glVertex2f(-100, -100);
-	//	glVertex2f(0, 0);
-	//	glVertex2f(100, -100);
-	//	glEnd();
 	//	// Especificar o local aonde o desenho acontece: bem no centro da janela
 	//	glTranslatef(tx, ty, 0.0f);
 	//	glBegin(GL_QUADS);
@@ -88,8 +85,10 @@ void desenhar()
 
 void areia() {
 	glPushMatrix();
+	glTranslatef(300, 000, 0);
+
 	GLfloat circ_pnt = 300;
-	GLfloat ang, raioX = 100.0f, raioY = 100.0f;
+	GLfloat ang, raioX = 80.0f, raioY = 80.0f;
 
 	glColor3ub(255, 255, 128);  // cor
 	glBegin(GL_POLYGON);
@@ -101,27 +100,47 @@ void areia() {
 	}
 	glEnd();
 
-	glTranslatef(100,100,0);
 	glPopMatrix();
+}
+
+void pal() {
+	glBegin(GL_QUADS);
+		glColor3ub(255,128,255);
+		glVertex2f(305,81);
+		glVertex2f(320,81);
+		glVertex2f(320,130);
+		glVertex2f(305, 130);
+
+	glEnd();
 }
 
 void display()
 {
-	glMatrixMode(GL_MODELVIEW); //coordenadas de desenho
+	glMatrixMode(GL_MODELVIEW);  //coordenadas de desenho
 	glLoadIdentity();
+
 	glClearColor(0.5f, 0.5f, 1.0f, 1.0f); // cor do fundo
 	glClear(GL_COLOR_BUFFER_BIT); // EXECUTA LIMPESA
-	// Especificar o local aonde o desenho acontece: bem no centro da janela maistranslacao
-	glTranslatef(janela_largura / 2, janela_altura/2, 0.0f);
+
+	// Especificar o local aonde o desenho acontece: bem no centro da janela
+	glTranslatef(janela_largura / 2, janela_altura / 2, 0.0f);
+
 	glViewport(0, 0, janela_largura, janela_altura);
 	desenhar();
-	glFlush(); // execute o desenho
+
+
+	glFlush();  // execute o desenho
+
 }
 void tela(GLsizei w, GLsizei h)
 {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+
 	// cria a janela (esq, direita, embaixo, em cima)
 	gluOrtho2D(0, janela_largura, 0, janela_altura);
+
+
 	glMatrixMode(GL_MODELVIEW);
+
 }
