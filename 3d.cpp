@@ -40,7 +40,7 @@ void display() {
 	glBegin(GL_TRIANGLES);
 
 
-		// triangulo 1 de 4 frente
+	// triangulo 1 de 4 frente
 	glColor3f(1.0f, 0.0f, 0.0f); // vermelho troca em todos
 	glVertex3f(0.0f, 1.0f, 0.0f);
 	glColor3f(0.0f, 1.0f, 0.0f); // verde para ficar
@@ -75,7 +75,7 @@ void display() {
 	glBegin(GL_LINE_LOOP);
 
 	// triangulo 1 de 4 frente
-	glVertex3f(1.0,0.0,1.0);
+	glVertex3f(1.0, 0.0, 1.0);
 	glVertex3f(1.0, -1.0, 1.0);
 	glVertex3f(1.0, -1.0, 0);
 	glVertex3f(1.0, 0.0, 0);
@@ -90,19 +90,19 @@ void display() {
 	// triangulo 4 de 4 esquerda
 
 	glEnd();
- 
+
 	glBegin(GL_LINE_LOOP);
 
 	// triangulo 1 de 4 frente
-	glColor3ub(128, 0,0); //vermelho
-	glVertex3f(1.0, -0.5, 1.0);
-	glColor3ub(255,255,0); //branco
+	glColor3ub(128, 0, 0); //vermelho
+	glVertex3f(1.0, -1.0, 1.0);
 	glVertex3f(1.0, -1.0, 0);
-
 	glColor3ub(0, 128, 0); //verde
-	glVertex3f(2.0, -0.5, 0);
-	glColor3ub(0, 0, 128); //azul
+	glVertex3f(2.0, -1.0, 0);
 	glVertex3f(2.0, -1.0, 1);
+	glVertex3f(1.0, -1.0, 1.0);
+
+
 
 	glEnd();
 
