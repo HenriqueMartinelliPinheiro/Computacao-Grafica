@@ -4,10 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/glut.h>
+#include <math.h>
 
 #define janela_altura 400
 #define janela_largura 600
-
+#define PI 3.14159
 float transH = 0;
 float transV = 0;
 
@@ -16,6 +17,7 @@ void tela(GLsizei w, GLsizei h);
 void keyboard(unsigned char tecla, int x, int y);
 void submarino();
 void peixe();
+int circ_pnt = 300;
 
 int main(int argc, char** argv)
 {
@@ -81,13 +83,32 @@ void submarino() {
 
 	glEnd();
 
-	glBegin(GL_TRIANGLES);
+	glBegin(GL_QUADS);
 
 	glVertex2f(5, 20);
-	glVertex2f(25, 20);
-	glVertex2f(15, 35);
+	glVertex2f(35, 20);
+	glVertex2f(35, 25);
+	glVertex2f(5, 25);
 
 	glEnd();
+
+	int raioX = 15;
+	int raioY = 15;
+	float ang;
+
+	glPushMatrix();
+	glTranslatef(0,25,0);
+	glBegin(GL_POLYGON);
+	for (int i = 0; i < circ_pnt; i++)
+	{
+		glColor3f(1.0, 0.0, 0.0);  // cor
+		ang = (2 * PI * i) / circ_pnt;
+		glVertex2f(cos(ang) * raioX, sin(ang) * raioY);
+	}
+
+	glEnd();
+
+	glPopMatrix();
 
 	glBegin(GL_QUADS);
 	glColor3f(0, 0, 0);  // cor
