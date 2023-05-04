@@ -16,7 +16,7 @@ float xRightSub = -999;
 float yTopSub = 100;
 float yDownSub = 80;
 float transH = 30;
-float transV = ((yTopSub - yDownSub) / 2) + yDownSub;;
+float transV = 80;
 
 void display(void);
 void tela(GLsizei w, GLsizei h);
@@ -54,29 +54,37 @@ void keyboard(unsigned char tecla, int x, int y)
 	printf("\no mouse estava em %d x %d\n", x, y);
 	if (tecla == 'a')
 	{
-		transH = transH - 1;
-		printf("\n o valor de translacao H e %.2f\n", transH);
+		if ((transH-xLeftSub)> (-300)) {
+			transH = transH - 1;
+			printf("\n o valor de translacao H e %.2f\n", transH);
+		}
 	}
 	if (tecla == 'd')
 	{
-		transH = transH + 1;
-		printf("\n o valor de translacao H e %.2f\n", transH);
+		if ((transH+xRightSub) < 300) {
+			transH = transH + 1;
+			printf("\n o valor de translacao H e %.2f\n", transH);
+		}
+		
 	}
 
 	if (tecla == 'w') {
-		transV += 1;
-		printf("\n o valor de translacao e  V %.2f\n", transV);
+		if (transV < 80) {
+			transV += 1;
+			printf("\n o valor de translacao e  V %.2f\n", transV);
+		}
 
 	}
 
 	if (tecla == 's') {
-		transV -= 1;
-		printf("\n o valor de translacao e V %.2f\n", transV);
+		if (transV > -200) {
+			transV -= 1;
+			printf("\n o valor de translacao e V %.2f\n", transV);
+		}
+		
 	}
 
 	glutPostRedisplay();
-
-
 }
 
 void ceu() {
@@ -182,7 +190,6 @@ void peixe() {
 	glVertex2f(-30, 10);
 
 	glEnd();
-
 
 }
 
