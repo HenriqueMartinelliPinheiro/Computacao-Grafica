@@ -5,19 +5,25 @@
 #include <stdlib.h>
 #include <GL/glut.h>
 #include <math.h>
+#include <limits.h>
 
 #define janela_altura 400
 #define janela_largura 600
 #define PI 3.14159
-float transH = 0;
-float transV = 0;
+int circ_pnt = 300;
+float xLeftSub = 999;
+float xRightSub = -999;
+float yTopSub = 100;
+float yDownSub = 80;
+float transH = 30;
+float transV = ((yTopSub - yDownSub) / 2) + yDownSub;;
 
 void display(void);
 void tela(GLsizei w, GLsizei h);
 void keyboard(unsigned char tecla, int x, int y);
 void submarino();
 void peixe();
-int circ_pnt = 300;
+
 
 int main(int argc, char** argv)
 {
@@ -49,23 +55,23 @@ void keyboard(unsigned char tecla, int x, int y)
 	if (tecla == 'a')
 	{
 		transH = transH - 1;
-		printf("\n o valor de translacao e %.2f\n", transH);
+		printf("\n o valor de translacao H e %.2f\n", transH);
 	}
 	if (tecla == 'd')
 	{
 		transH = transH + 1;
-		printf("\n o valor de translacao e %.2f\n", transH);
+		printf("\n o valor de translacao H e %.2f\n", transH);
 	}
 
 	if (tecla == 'w') {
 		transV += 1;
-		printf("\n o valor de translacao e %.2f\n", transV);
+		printf("\n o valor de translacao e  V %.2f\n", transV);
 
 	}
 
 	if (tecla == 's') {
 		transV -= 1;
-		printf("\n o valor de translacao e %.2f\n", transV);
+		printf("\n o valor de translacao e V %.2f\n", transV);
 	}
 
 	glutPostRedisplay();
@@ -73,51 +79,100 @@ void keyboard(unsigned char tecla, int x, int y)
 
 }
 
+void ceu() {
+	glBegin(GL_QUADS);
+	glColor3f(0.26, 0.9, 0.96);  // cor
+	glVertex2f(-300, 200);
+	glVertex2f(300, 200);
+	glVertex2f(300, 100);
+	glVertex2f(-300, 100);
+
+	glEnd();
+}
+
 void submarino() {
+
+	glPushMatrix();
+	glTranslatef(transH, transV, 0);
+
 	glBegin(GL_QUADS);
 	glColor3f(1.0, 1.0, 0.0);  // cor
 	glVertex2f(0, 0);
-	glVertex2f(40, 0);
-	glVertex2f(40, 20);
+	glVertex2f(60, 0);
+	glVertex2f(60, 20);
 	glVertex2f(0, 20);
 
 	glEnd();
 
 	glBegin(GL_QUADS);
 
-	glVertex2f(5, 20);
-	glVertex2f(35, 20);
-	glVertex2f(35, 25);
-	glVertex2f(5, 25);
+	glVertex2f(15, 20);
+	glVertex2f(45, 20);
+	glVertex2f(45, 25);
+	glVertex2f(15, 25);
 
 	glEnd();
 
-	int raioX = 15;
-	int raioY = 15;
+	int raioX = 13;
+	int raioY = 10;
 	float ang;
-
 	glPushMatrix();
-	glTranslatef(0,25,0);
+	glTranslatef(1, 10, 0);
 	glBegin(GL_POLYGON);
 	for (int i = 0; i < circ_pnt; i++)
 	{
-		glColor3f(1.0, 0.0, 0.0);  // cor
+		glColor3f(1.0, 1.0, 0.0);  // cor
 		ang = (2 * PI * i) / circ_pnt;
 		glVertex2f(cos(ang) * raioX, sin(ang) * raioY);
+		if ((cos(ang) * raioX)<xLeftSub) {
+			xLeftSub = (cos(ang) * raioX);
+			printf("Esquerda %f\n",xLeftSub);
+		}
 	}
 
 	glEnd();
-
 	glPopMatrix();
 
-	glBegin(GL_QUADS);
-	glColor3f(0, 0, 0);  // cor
-	glVertex2f(0, 10);
-	glVertex2f(10, 10);
-	glVertex2f(10, 20);
-	glVertex2f(0, 20);
-
+	glPushMatrix();
+	glTranslatef(54, 10, 0);
+	glBegin(GL_POLYGON);
+	for (int i = 0; i < circ_pnt; i++)
+	{
+		glColor3f(1.0, 1.0, 0.0);  // cor
+		ang = (2 * PI * i) / circ_pnt;
+		glVertex2f(cos(ang) * raioX, sin(ang) * raioY);
+		if ((cos(ang) * raioX) > xRightSub) {
+			xRightSub = (cos(ang) * raioX);
+			printf("Direita %f \n", xRightSub);
+		}
+	}
 	glEnd();
+	glPopMatrix();
+
+	glPointSize(5);
+
+
+	glBegin(GL_POINTS);
+	glColor3f(0, 0, 0.5);  // cor
+	glVertex2f(5,10);
+	glEnd();
+
+	glBegin(GL_POINTS);
+	glColor3f(0, 0, 0.5);  // cor
+	glVertex2f(20, 10);
+	glEnd();
+
+	glBegin(GL_POINTS);
+	glColor3f(0, 0, 0.5);  // cor
+	glVertex2f(35, 10);
+	glEnd();
+
+	glBegin(GL_POINTS);
+	glColor3f(0, 0, 0.5);  // cor
+	glVertex2f(50, 10);
+	glEnd();
+	
+	glPopMatrix();
 }
 
 void peixe() {
@@ -129,12 +184,14 @@ void peixe() {
 	glVertex2f(-30, 10);
 
 	glEnd();
+
+
 }
 
 void desenhar()
 {
+	ceu();
 	glPushMatrix();
-	glTranslatef(transH, transV, 0);
 
 	submarino();
 	glPopMatrix();
@@ -165,13 +222,11 @@ void display()
 void tela(GLsizei w, GLsizei h)
 {
 
-
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
 	// cria a janela (esq, direita, embaixo, em cima)
 	gluOrtho2D(0, janela_largura, 0, janela_altura);
-
 
 	glMatrixMode(GL_MODELVIEW);
 
