@@ -124,9 +124,8 @@ void submarino() {
 		glColor3f(1.0, 1.0, 0.0);  // cor
 		ang = (2 * PI * i) / circ_pnt;
 		glVertex2f(cos(ang) * raioX, sin(ang) * raioY);
-		if ((cos(ang) * raioX)<xLeftSub) {
-			xLeftSub = (cos(ang) * raioX);
-			printf("Esquerda %f\n",xLeftSub);
+		if ((cos(ang) * raioX) < xLeftSub) {
+			xLeftSub = (cos(ang) * raioX) + 1;
 		}
 	}
 
@@ -142,8 +141,7 @@ void submarino() {
 		ang = (2 * PI * i) / circ_pnt;
 		glVertex2f(cos(ang) * raioX, sin(ang) * raioY);
 		if ((cos(ang) * raioX) > xRightSub) {
-			xRightSub = (cos(ang) * raioX);
-			printf("Direita %f \n", xRightSub);
+			xRightSub = (cos(ang) * raioX) + 54;
 		}
 	}
 	glEnd();
@@ -154,7 +152,7 @@ void submarino() {
 
 	glBegin(GL_POINTS);
 	glColor3f(0, 0, 0.5);  // cor
-	glVertex2f(5,10);
+	glVertex2f(5, 10);
 	glEnd();
 
 	glBegin(GL_POINTS);
@@ -171,7 +169,7 @@ void submarino() {
 	glColor3f(0, 0, 0.5);  // cor
 	glVertex2f(50, 10);
 	glEnd();
-	
+
 	glPopMatrix();
 }
 
@@ -213,7 +211,6 @@ void display()
 
 	glViewport(0, 0, janela_largura, janela_altura);
 	desenhar();
-
 
 	glFlush();  // execute o desenho
 
