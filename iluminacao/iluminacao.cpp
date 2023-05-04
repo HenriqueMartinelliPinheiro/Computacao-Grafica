@@ -5,6 +5,7 @@
 #define janela_altura 480
 #define janela_largura 640
 int on = 1;
+int onc = 0;
 float x = 0.0, y = 0.0, z = 0.0;
 void reshape(GLsizei largura, GLsizei altura);
 void display();
@@ -30,7 +31,7 @@ void conf_luz(void)
 	float diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
 	float specular[] = { 1.0, 1.0, 1.0, 1.0 };
 	float posicao[] = { 0.0 + sin(x * 2 * 3.14 / 360), 3.0, 2.0 + sin(x * 2 * 3.14 / 360), 0.0 };
-	float lmodel_ambiente[] = { 0.7, 0.7, 0.7, 1.0 };
+	float lmodel_ambiente[] = { 0.2, 0.2, 0.2, 1.0 };
 	float local_view[] = { 0.0 };
 	glClearColor(0.0, 0.1, 0.1, 0.0);
 	glEnable(GL_DEPTH_TEST);
@@ -40,22 +41,19 @@ void conf_luz(void)
 	glLightfv(GL_LIGHT0, GL_POSITION, posicao);
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambiente);
 	glLightModelfv(GL_LIGHT_MODEL_LOCAL_VIEWER, local_view);
-	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 
-	float ambiente1[] = { 0.7, 0.4, 0.1, 1.0 };
-	float diffuse1[] = { 1.0, 1.0, 1.0, 1.0 };
-	float specular1[] = { 1.0, 1.0, 1.0, 1.0 };
-	float posicao1[] = { 1.0 + sin(x * 2 * 3.14 / 360), 3.0, 2.0 + sin(x * 2 * 3.14 / 360), 0.0 };
-	float lmodel_ambiente1[] = { 0.7, 0.7, 0.7, 1.0 };
-	float local_view1[] = { 0.0 };
+	float diffuse2[] = { 0.11764705882, 0.50588235294, 0.69019607843, 1.0 };
+	float posicao2[] = { 2.0 + sin(x * 2 * 3.14 / 360), 3.0, 0.0 + sin(x * 2 * 3.14 / 360), 0.0 };
 	glClearColor(0.0, 0.1, 0.1, 0.0);
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_SMOOTH);
-	glLightfv(GL_LIGHT1, GL_AMBIENT, ambiente1);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse1);
-	glLightfv(GL_LIGHT1, GL_POSITION, posicao1);
-
+	glLightfv(GL_LIGHT1, GL_AMBIENT, ambiente);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse2);
+	glLightfv(GL_LIGHT1, GL_POSITION, posicao2);
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambiente);
+	glLightModelfv(GL_LIGHT_MODEL_LOCAL_VIEWER, local_view);
+	glEnable(GL_LIGHTING);
 }
 
 void reshape(GLsizei largura, GLsizei altura)
@@ -74,37 +72,28 @@ void reshape(GLsizei largura, GLsizei altura)
 void display()
 {
 	float padrao[] = { 0.0, 0.0, 0.0, 1.0 };
-	float mat_ambientee[] = { 0.1, 0.1, 0.1, 1.0 };
-	float mat_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-	float mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-	float alto_brilho[] = { 25.0 };
-
-	float padrao2[] = { 0.0, 0.0, 0.0, 1.0 };
-	float mat_ambientee2[] = {0.8,0.8,0.8,1 };
-	float mat_diffuse2[] = { 0.7, 0.7, 0.9, 1.0 };
-	float mat_specular2[] = { 1.0, 1.0, 1.0, 1.0 };
-	float alto_brilho2[] = { 0 };
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // executa a limpeza
+	GLfloat ambient_color[] = { 0.23125f, 0.23125f, 0.23125f, 1.0f };
+	GLfloat diffuse_color[] = { 0.2775f, 0.2775f, 0.2775f, 1.0f };
+	GLfloat specular_color[] = { 0.773911f, 0.773911f, 0.773911f, 1.0f };
+	float alto_brilho[] = { 100.0 };
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // executa a limpesa
 	glMatrixMode(GL_MODELVIEW); // operando com a camera de modelos
 
 	glLoadIdentity();
-	glTranslatef(-1.5f, 0.0f, -6.0f); // posiciona a piramide
-	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambientee);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+
+	glTranslatef(1.5f, 0.0f, -6.0f);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_color);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_color);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specular_color);
 	glMaterialfv(GL_FRONT, GL_SHININESS, alto_brilho);
 	glMaterialfv(GL_FRONT, GL_EMISSION, padrao);
-	glutSolidCube(2);
-
-	glTranslatef(1.5f, 0.0f, -6.0f); // posiciona a piramide
-	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambientee2);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse2);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular2);
-	glMaterialfv(GL_FRONT, GL_SHININESS, alto_brilho2);
-	glMaterialfv(GL_FRONT, GL_EMISSION, padrao2);
 	glutSolidSphere(1.0, 60, 60);
-	glutSwapBuffers(); // trocar a matriz da tela por esta aqui.
+	glTranslatef(-2.5f, 0.0f, -4.0f); 
+	glRotatef(145.0, 8.0, -5.0, 0.0);
+
+	glutSolidCube(2.0f);
+
+	glutSwapBuffers();
 }
 void keyboard(unsigned char key, int a, int b)
 {
@@ -112,8 +101,29 @@ void keyboard(unsigned char key, int a, int b)
 	{
 	case 'x':
 	{
-		x += 10.0;
+		x+= 10.0;
 		conf_luz();
+
+		if (!on)
+		{
+			glDisable(GL_LIGHT0);
+			glDisable(GL_LIGHT1);
+			on = 0;
+		}
+		else
+		{
+			if (onc)
+			{
+				glEnable(GL_LIGHT0);
+				glDisable(GL_LIGHT1);
+			}
+			else
+			{
+				glEnable(GL_LIGHT1);
+				glDisable(GL_LIGHT0);
+			}
+			on = 1;
+		}
 
 		glutPostRedisplay();
 	} break;
@@ -122,14 +132,38 @@ void keyboard(unsigned char key, int a, int b)
 		if (on)
 		{
 			glDisable(GL_LIGHT0);
-			glEnable(GL_LIGHT1);
+			glDisable(GL_LIGHT1);
 			on = 0;
 		}
 		else
 		{
-			glDisable(GL_LIGHT1);
-			glEnable(GL_LIGHT0);
+			if (onc)
+			{
+				glEnable(GL_LIGHT0);
+				glDisable(GL_LIGHT1);
+			}
+			else
+			{
+				glEnable(GL_LIGHT1);
+				glDisable(GL_LIGHT0);
+			}
 			on = 1;
+		}
+		glutPostRedisplay();
+	} break;
+	case 'c':
+	{
+		if (onc)
+		{
+			glEnable(GL_LIGHT0);
+			glDisable(GL_LIGHT1);
+			onc = 0;
+		}
+		else
+		{
+			glEnable(GL_LIGHT1);
+			glDisable(GL_LIGHT0);
+			onc = 1;
 		}
 		glutPostRedisplay();
 	} break;
