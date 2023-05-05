@@ -10,6 +10,26 @@
 #define janela_altura 400
 #define janela_largura 600
 #define PI 3.14159
+
+typedef struct {
+	float xLeft;
+	float xRight;
+	float yTop;
+	float yDown;
+	float trans;
+} PeixesLeft;
+
+void display(void);
+void tela(GLsizei w, GLsizei h);
+void keyboard(unsigned char tecla, int x, int y);
+void submarino();
+void peixe(PeixesLeft*, int);
+PeixesLeft *alocarPeixesLeft();
+PeixesLeft** alocarVetorPeixesLeft();
+void criarPeixes();
+void definirPeixe();
+
+int alturaPeixesLeft[3] = { -150, -50, 50 };
 int circ_pnt = 300;
 float xLeftSub = 999;
 float xRightSub = -999;
@@ -17,16 +37,15 @@ float yTopSub = 100;
 float yDownSub = 80;
 float transH = 30;
 float transV = 80;
-
-void display(void);
-void tela(GLsizei w, GLsizei h);
-void keyboard(unsigned char tecla, int x, int y);
-void submarino();
-void peixe();
+PeixesLeft** peixesLeft;
+int tamPeixes = 4;
 
 
 int main(int argc, char** argv)
 {
+
+	peixesLeft = alocarVetorPeixesLeft();
+	criarPeixes();
 	glutInit(&argc, argv);	// suporte a janelas
 
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
@@ -45,6 +64,17 @@ int main(int argc, char** argv)
 	return(0);
 }
 
+PeixesLeft** alocarVetorPeixesLeft() {
+	PeixesLeft** peixesLeft;
+	peixesLeft = (PeixesLeft**) malloc(sizeof(PeixesLeft*) * tamPeixes);
+	return peixesLeft;
+}
+
+void criarPeixes() {
+	for (int i = 0; i < tamPeixes; i++) {
+		peixesLeft[i] = alocarPeixesLeft();
+	}
+}
 
 void keyboard(unsigned char tecla, int x, int y)
 {
@@ -97,6 +127,8 @@ void ceu() {
 
 	glEnd();
 }
+
+
 
 void submarino() {
 
@@ -181,16 +213,30 @@ void submarino() {
 	glPopMatrix();
 }
 
-void peixe() {
-	glBegin(GL_QUADS);
-	glColor3ub(237, 216, 146);  // cor
-	glVertex2f(-30, 0);
-	glVertex2f(-10, 0);
-	glVertex2f(-10, 10);
-	glVertex2f(-30, 10);
+void peixe(PeixesLeft* peixe, int altura) {
+	peixe->xLeft = -45;
+	peixe->xRight = -20;
+	peixe->yTop = altura;
+	peixe->yDown = altura -20;
 
+	glBegin(GL_TRIANGLES);
+	glColor3ub(237, 216, 146);  // cor
+	glVertex2f(peixe->xLeft-5, peixe->yDown);
+	glVertex2f(peixe->xLeft-5, peixe->yTop);
+	glVertex2f(peixe->xRight, peixe->yTop-10);
 	glEnd();
 
+	glColor3ub(235, 192, 52);  // cor
+	glBegin(GL_TRIANGLES);
+	glVertex2f(peixe->xLeft-15, peixe->yDown);
+	glVertex2f(peixe->xLeft-15, peixe->yTop);
+	glVertex2f(peixe->xLeft + 5, peixe->yTop-10);
+	glEnd();
+
+	glColor3ub(0, 0, 0);  // cor
+	glBegin(GL_POINTS);
+	glVertex2f(peixe->xLeft + 15, peixe->yTop - 10);
+	glEnd();
 }
 
 void desenhar()
@@ -201,7 +247,7 @@ void desenhar()
 	submarino();
 	glPopMatrix();
 
-	peixe();
+	definirPeixe();
 }
 
 void display()
@@ -212,7 +258,6 @@ void display()
 	glClearColor(0.5f, 0.5f, 1.0f, 1.0f); // cor do fundo
 
 	glClear(GL_COLOR_BUFFER_BIT); // EXECUTA LIMPESA
-
 	// Especificar o local aonde o desenho acontece: bem no centro da janela
 	glTranslatef(janela_largura / 2, janela_altura / 2, 0.0f);
 
@@ -221,6 +266,17 @@ void display()
 
 	glFlush();  // execute o desenho
 
+}
+
+void definirPeixe() {
+	for (int i = 0; i < tamPeixes; i++)
+	{
+		peixe(peixesLeft[i], alturaPeixesLeft[i]);
+	}
+}
+
+PeixesLeft *alocarPeixesLeft() {
+	return (PeixesLeft*)malloc(sizeof(PeixesLeft));
 }
 
 void tela(GLsizei w, GLsizei h)
