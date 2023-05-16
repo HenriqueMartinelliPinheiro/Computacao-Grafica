@@ -38,7 +38,7 @@ float yDownSub = 80;
 float transH = 30;
 float transV = 80;
 PeixesLeft** peixesLeft;
-int tamPeixes = 4;
+int tamPeixes = 3;
 void verificarColisao();
 
 int main(int argc, char** argv)
@@ -79,22 +79,22 @@ void criarPeixes() {
 
 void keyboard(unsigned char tecla, int x, int y)
 {
-	printf("\ntecla %c\n", tecla);
+	/*printf("\ntecla %c\n", tecla);
 	printf("\n\nDigite 1 para esquerda: ");
 	printf("\ntecla %c\n", tecla);
-	printf("\no mouse estava em %d x %d\n", x, y);
+	printf("\no mouse estava em %d x %d\n", x, y);*/
 	if (tecla == 'a')
 	{
 		if ((transH - xLeftSub) > (-300)) {
 			transH = transH - 1;
-			printf("\n o valor de translacao H e %.2f\n", transH);
+			//printf("\n o valor de translacao H e %.2f\n", transH);
 		}
 	}
 	if (tecla == 'd')
 	{
 		if ((transH + xRightSub) < 300) {
 			transH = transH + 1;
-			printf("\n o valor de translacao H e %.2f\n", transH);
+			//printf("\n o valor de translacao H e %.2f\n", transH);
 		}
 
 	}
@@ -102,7 +102,7 @@ void keyboard(unsigned char tecla, int x, int y)
 	if (tecla == 'w') {
 		if (transV < 80) {
 			transV += 1;
-			printf("\n o valor de translacao e  V %.2f\n", transV);
+			//printf("\n o valor de translacao e  V %.2f\n", transV);
 		}
 
 	}
@@ -110,7 +110,7 @@ void keyboard(unsigned char tecla, int x, int y)
 	if (tecla == 's') {
 		if (transV > -200) {
 			transV -= 1;
-			printf("\n o valor de translacao e V %.2f\n", transV);
+			//printf("\n o valor de translacao e V %.2f\n", transV);
 		}
 
 	}
@@ -215,6 +215,7 @@ void submarino() {
 }
 
 void peixe(PeixesLeft* peixe, int altura) {
+
 	peixe->xLeft = -345;
 	peixe->xRight = -305;
 	peixe->yTop = altura;
@@ -300,14 +301,19 @@ void tela(GLsizei w, GLsizei h)
 }
 
 void verificarColisao() {
+
 	for (int i = 0; i < tamPeixes; i++)
 	{
-		if (xRightSub+transH >= peixesLeft[i]->xLeft+ peixesLeft[i]->trans && xLeftSub+transH <= peixesLeft[i]->xLeft+ peixesLeft[i]->trans && yTopSub+transV >= peixesLeft[i]->yDown && yTopSub+transV <= peixesLeft[i]->yTop) {
-			printf("Trans H: %f",transH);
+		printf("\n Peixe1 Top: %f, Peixe1 Down: %f, Cord Submarino: %f\n", peixesLeft[i]->yTop, peixesLeft[i]->yDown, yTopSub + transV);
+
+		if (yTopSub + transV -80>= peixesLeft[i]->yDown && yTopSub + transV -80<= peixesLeft[i]->yTop) {
+			printf("COLISAAAAAAAAAAAAAAAAAAAAO");
 		}
+	/*	if (((xRightSub + transH) >= (peixesLeft[i]->xLeft + peixesLeft[i]->trans)) && ((xRightSub + transH) <= (peixesLeft[i]->xRight + peixesLeft[i]->trans)) && ((yTopSub + transV) >= (peixesLeft[i]->yDown)) && ((yTopSub + transV) <= (peixesLeft[i]->yTop))) {
+			printf("Trans H: %f", transH);
+		}*/
 	}
-	
-}
+}	
 
 void anima(int valor)
 {
