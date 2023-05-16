@@ -24,11 +24,11 @@ void tela(GLsizei w, GLsizei h);
 void keyboard(unsigned char tecla, int x, int y);
 void submarino();
 void peixe(PeixesLeft*, int);
-PeixesLeft *alocarPeixesLeft();
+PeixesLeft* alocarPeixesLeft();
 PeixesLeft** alocarVetorPeixesLeft();
 void criarPeixes();
 void definirPeixe();
-
+void anima(int);
 int alturaPeixesLeft[3] = { -150, -50, 50 };
 int circ_pnt = 300;
 float xLeftSub = 999;
@@ -39,7 +39,7 @@ float transH = 30;
 float transV = 80;
 PeixesLeft** peixesLeft;
 int tamPeixes = 4;
-
+void verificarColisao();
 
 int main(int argc, char** argv)
 {
@@ -59,6 +59,7 @@ int main(int argc, char** argv)
 	glutKeyboardFunc(&keyboard);  // chama teclado
 	glutReshapeFunc(tela);  // configura a tela
 	glutDisplayFunc(display);
+	glutTimerFunc(150, anima, 1);
 	glutMainLoop(); // redesenhar
 
 	return(0);
@@ -66,7 +67,7 @@ int main(int argc, char** argv)
 
 PeixesLeft** alocarVetorPeixesLeft() {
 	PeixesLeft** peixesLeft;
-	peixesLeft = (PeixesLeft**) malloc(sizeof(PeixesLeft*) * tamPeixes);
+	peixesLeft = (PeixesLeft**)malloc(sizeof(PeixesLeft*) * tamPeixes);
 	return peixesLeft;
 }
 
@@ -84,18 +85,18 @@ void keyboard(unsigned char tecla, int x, int y)
 	printf("\no mouse estava em %d x %d\n", x, y);
 	if (tecla == 'a')
 	{
-		if ((transH-xLeftSub)> (-300)) {
+		if ((transH - xLeftSub) > (-300)) {
 			transH = transH - 1;
 			printf("\n o valor de translacao H e %.2f\n", transH);
 		}
 	}
 	if (tecla == 'd')
 	{
-		if ((transH+xRightSub) < 300) {
+		if ((transH + xRightSub) < 300) {
 			transH = transH + 1;
 			printf("\n o valor de translacao H e %.2f\n", transH);
 		}
-		
+
 	}
 
 	if (tecla == 'w') {
@@ -111,7 +112,7 @@ void keyboard(unsigned char tecla, int x, int y)
 			transV -= 1;
 			printf("\n o valor de translacao e V %.2f\n", transV);
 		}
-		
+
 	}
 
 	glutPostRedisplay();
@@ -214,28 +215,28 @@ void submarino() {
 }
 
 void peixe(PeixesLeft* peixe, int altura) {
-	peixe->xLeft = -45;
-	peixe->xRight = -20;
+	peixe->xLeft = -345;
+	peixe->xRight = -305;
 	peixe->yTop = altura;
-	peixe->yDown = altura -20;
+	peixe->yDown = altura - 20;
 
 	glBegin(GL_TRIANGLES);
 	glColor3ub(237, 216, 146);  // cor
-	glVertex2f(peixe->xLeft-5, peixe->yDown);
-	glVertex2f(peixe->xLeft-5, peixe->yTop);
-	glVertex2f(peixe->xRight, peixe->yTop-10);
+	glVertex2f(peixe->xLeft + 10, peixe->yDown);
+	glVertex2f(peixe->xLeft + 10, peixe->yTop);
+	glVertex2f(peixe->xRight, peixe->yTop - 10);
 	glEnd();
 
 	glColor3ub(235, 192, 52);  // cor
 	glBegin(GL_TRIANGLES);
-	glVertex2f(peixe->xLeft-15, peixe->yDown);
-	glVertex2f(peixe->xLeft-15, peixe->yTop);
-	glVertex2f(peixe->xLeft + 5, peixe->yTop-10);
+	glVertex2f(peixe->xLeft, peixe->yDown);
+	glVertex2f(peixe->xLeft, peixe->yTop);
+	glVertex2f(peixe->xLeft + 20, peixe->yTop - 10);
 	glEnd();
 
 	glColor3ub(0, 0, 0);  // cor
 	glBegin(GL_POINTS);
-	glVertex2f(peixe->xLeft + 15, peixe->yTop - 10);
+	glVertex2f(peixe->xLeft + 25, peixe->yTop - 10);
 	glEnd();
 }
 
@@ -246,7 +247,7 @@ void desenhar()
 
 	submarino();
 	glPopMatrix();
-
+	verificarColisao();
 	definirPeixe();
 }
 
@@ -271,12 +272,18 @@ void display()
 void definirPeixe() {
 	for (int i = 0; i < tamPeixes; i++)
 	{
+		glPushMatrix();
+		glTranslatef(peixesLeft[i]->trans, 0, 0);
 		peixe(peixesLeft[i], alturaPeixesLeft[i]);
+		glPopMatrix();
 	}
 }
 
-PeixesLeft *alocarPeixesLeft() {
-	return (PeixesLeft*)malloc(sizeof(PeixesLeft));
+PeixesLeft* alocarPeixesLeft() {
+	PeixesLeft* peixe = (PeixesLeft*)malloc(sizeof(PeixesLeft));
+	peixe->trans = 0;
+
+	return peixe;
 }
 
 void tela(GLsizei w, GLsizei h)
@@ -290,4 +297,27 @@ void tela(GLsizei w, GLsizei h)
 
 	glMatrixMode(GL_MODELVIEW);
 
+}
+
+void verificarColisao() {
+	for (int i = 0; i < tamPeixes; i++)
+	{
+		if (xRightSub+transH >= peixesLeft[i]->xLeft+ peixesLeft[i]->trans && xLeftSub+transH <= peixesLeft[i]->xLeft+ peixesLeft[i]->trans && yTopSub+transV >= peixesLeft[i]->yDown && yTopSub+transV <= peixesLeft[i]->yTop) {
+			printf("Trans H: %f",transH);
+		}
+	}
+	
+}
+
+void anima(int valor)
+{
+	for (int i = 0; i < tamPeixes; i++)
+	{
+		if ((peixesLeft[i]->xLeft + peixesLeft[i]->trans) >= 300) {
+			peixesLeft[i]->trans = 0;
+		}
+		peixesLeft[i]->trans += 5;
+	}
+	glutPostRedisplay();
+	glutTimerFunc(150, anima, 1);
 }
