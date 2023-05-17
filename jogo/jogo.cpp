@@ -23,13 +23,18 @@ void display(void);
 void tela(GLsizei w, GLsizei h);
 void keyboard(unsigned char tecla, int x, int y);
 void submarino();
-void peixe(Objetos*, int);
+void peixeLeft(Objetos*, int, float xLeft, float xRight);
+void peixeRight(Objetos*, int, float xLeft, float xRight);
 Objetos* alocarObjetos();
 Objetos** alocarVetorObjetos();
-void criarPeixes();
+void criarObjetos();
 void definirPeixe();
 void anima(int);
-int alturaObjetos[3] = { -150, -50, 50 };
+void verificarColisaoPeixes();
+void verificarColisao();
+
+int alturaPeixesLeft[3] = { -130, -30, 70 };
+int alturaPeixesRight[3] = { -170, -70, 30 };
 int circ_pnt = 300;
 float xLeftSub = 999;
 float xRightSub = -999;
@@ -40,7 +45,6 @@ float transV = 80;
 Objetos** peixesLeft;
 Objetos** peixesRight;
 int tamPeixes = 3;
-void verificarColisao();
 float transHInicial = transH;
 float transVInicial = transV;
 int oxigenio = 10;
@@ -52,7 +56,7 @@ int main(int argc, char** argv)
 
 	peixesLeft = alocarVetorObjetos();
 	peixesRight = alocarVetorObjetos();
-	criarPeixes();
+	criarObjetos();
 	glutInit(&argc, argv);	// suporte a janelas
 
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
@@ -78,9 +82,10 @@ Objetos** alocarVetorObjetos() {
 	return peixesLeft;
 }
 
-void criarPeixes() {
+void criarObjetos() {
 	for (int i = 0; i < tamPeixes; i++) {
 		peixesLeft[i] = alocarObjetos();
+		peixesRight[i] = alocarObjetos();
 	}
 }
 
@@ -93,14 +98,14 @@ void keyboard(unsigned char tecla, int x, int y)
 	if (tecla == 'a')
 	{
 		if ((transH - xLeftSub) > (-300)) {
-			transH = transH - 1;
+			transH = transH - 2;
 			//printf("\n o valor de translacao H e %.2f\n", transH);
 		}
 	}
 	if (tecla == 'd')
 	{
 		if ((transH + xRightSub) < 300) {
-			transH = transH + 1;
+			transH = transH + 2;
 			//printf("\n o valor de translacao H e %.2f\n", transH);
 		}
 
@@ -108,7 +113,7 @@ void keyboard(unsigned char tecla, int x, int y)
 
 	if (tecla == 'w') {
 		if (transV < 80) {
-			transV += 1;
+			transV += 2;
 			//printf("\n o valor de translacao e  V %.2f\n", transV);
 		}
 
@@ -116,7 +121,7 @@ void keyboard(unsigned char tecla, int x, int y)
 
 	if (tecla == 's') {
 		if (transV > -200) {
-			transV -= 1;
+			transV -= 2;
 			//printf("\n o valor de translacao e V %.2f\n", transV);
 		}
 
@@ -221,10 +226,10 @@ void submarino() {
 	glPopMatrix();
 }
 
-void peixe(Objetos* peixe, int altura) {
+void peixeLeft(Objetos* peixe, int altura,float xLeft, float xRight) {
 
-	peixe->xLeft = -345;
-	peixe->xRight = -305;
+	peixe->xLeft = xLeft;
+	peixe->xRight = xRight;
 	peixe->yTop = altura;
 	peixe->yDown = altura - 20;
 
@@ -245,6 +250,33 @@ void peixe(Objetos* peixe, int altura) {
 	glColor3ub(0, 0, 0);  // cor
 	glBegin(GL_POINTS);
 	glVertex2f(peixe->xLeft + 25, peixe->yTop - 10);
+	glEnd();
+}
+
+void peixeRight(Objetos* peixe, int altura, float xLeft, float xRight) {
+
+	peixe->xLeft = xLeft;
+	peixe->xRight = xRight;
+	peixe->yTop = altura;
+	peixe->yDown = altura - 20;
+
+	glBegin(GL_TRIANGLES);
+	glColor3ub(237, 216, 146);  // cor
+	glVertex2f(peixe->xRight - 10, peixe->yDown);
+	glVertex2f(peixe->xRight - 10, peixe->yTop);
+	glVertex2f(peixe->xLeft, peixe->yTop - 10);
+	glEnd();
+
+	glColor3ub(235, 192, 52);  // cor
+	glBegin(GL_TRIANGLES);
+	glVertex2f(peixe->xRight, peixe->yDown);
+	glVertex2f(peixe->xRight, peixe->yTop);
+	glVertex2f(peixe->xRight -20, peixe->yTop - 10);
+	glEnd();
+
+	glColor3ub(0, 0, 0);  // cor
+	glBegin(GL_POINTS);
+	glVertex2f(peixe->xRight - 25, peixe->yTop - 10);
 	glEnd();
 }
 
@@ -282,7 +314,11 @@ void definirPeixe() {
 	{
 		glPushMatrix();
 		glTranslatef(peixesLeft[i]->trans, 0, 0);
-		peixe(peixesLeft[i], alturaObjetos[i]);
+		peixeLeft(peixesLeft[i], alturaPeixesLeft[i], -345, -305);
+		glPopMatrix();
+		glPushMatrix();
+		glTranslatef(peixesRight[i]->trans, 0, 0);
+		peixeRight(peixesRight[i], alturaPeixesRight[i],305, 345);
 		glPopMatrix();
 	}
 }
@@ -308,32 +344,45 @@ void tela(GLsizei w, GLsizei h)
 }
 
 void verificarColisao() {
+	verificarColisaoPeixes();
+}
 
+void verificarColisaoPeixes() {
 	for (int i = 0; i < tamPeixes; i++)
 	{
-		printf("\n Peixe1 Top: %f, Peixe1 Down: %f, Cord Submarino: %f\n", peixesLeft[i]->yTop, peixesLeft[i]->yDown, yTopSub + transV);
-
 		if (((yTopSub + transV - transVInicial >= peixesLeft[i]->yDown && yTopSub + transV - transVInicial <= peixesLeft[i]->yTop)
-			||(yDownSub + transV - transVInicial <= peixesLeft[i]->yTop && yDownSub + transV - transVInicial >= peixesLeft[i]->yDown))) {
-			printf("VERTICAAAAAAL");
-			if ((xRightSub + transH - transHInicial>= peixesLeft[i]->xLeft + peixesLeft[i]->trans && xRightSub + transH - transHInicial <= peixesLeft[i]->xRight + peixesLeft[i]->trans)
+			|| (yDownSub + transV - transVInicial <= peixesLeft[i]->yTop && yDownSub + transV - transVInicial >= peixesLeft[i]->yDown))) {
+			if ((xRightSub + transH - transHInicial >= peixesLeft[i]->xLeft + peixesLeft[i]->trans && xRightSub + transH - transHInicial <= peixesLeft[i]->xRight + peixesLeft[i]->trans)
 				|| (xLeftSub + transH - transHInicial <= peixesLeft[i]->xRight + peixesLeft[i]->trans && xLeftSub + transH - transHInicial >= peixesLeft[i]->xLeft + peixesLeft[i]->trans)) {
 				transH = transHInicial;
 				transV = transVInicial;
 				peixesLeft[i]->trans = 0;
 			}
 		}
+		if (((yTopSub + transV - transVInicial >= peixesRight[i]->yDown && yTopSub + transV - transVInicial <= peixesRight[i]->yTop)
+			|| (yDownSub + transV - transVInicial <= peixesRight[i]->yTop && yDownSub + transV - transVInicial >= peixesRight[i]->yDown))) {
+			if ((xRightSub + transH - transHInicial >= peixesRight[i]->xLeft + peixesRight[i]->trans && xRightSub + transH - transHInicial <= peixesRight[i]->xRight + peixesRight[i]->trans)
+				|| (xLeftSub + transH - transHInicial <= peixesRight[i]->xRight + peixesRight[i]->trans && xLeftSub + transH - transHInicial >= peixesRight[i]->xLeft + peixesRight[i]->trans)) {
+				transH = transHInicial;
+				transV = transVInicial;
+				peixesRight[i]->trans = 0;
+			}
+		}
 	}
 }
-
 void anima(int valor)
 {
 	for (int i = 0; i < tamPeixes; i++)
 	{
+		printf("Translate direita %i : %f, Translate: %f, Soma: %f \n", i, peixesRight[i]->xRight, peixesRight[i]->trans, peixesRight[i]->trans + peixesRight[i]->xRight);
 		if ((peixesLeft[i]->xLeft + peixesLeft[i]->trans) >= 300) {
 			peixesLeft[i]->trans = 0;
 		}
+		if ((peixesRight[i]->xRight + peixesRight[i]->trans) <= -300) {
+			peixesRight[i]->trans = 0;
+		}
 		peixesLeft[i]->trans += 5;
+		peixesRight[i]->trans -= 5;
 	}
 	glutPostRedisplay();
 	glutTimerFunc(150, anima, 1);
