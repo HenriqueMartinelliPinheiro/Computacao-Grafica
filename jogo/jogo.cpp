@@ -17,19 +17,19 @@ typedef struct {
 	float yTop;
 	float yDown;
 	float trans;
-} PeixesLeft;
+} Objetos;
 
 void display(void);
 void tela(GLsizei w, GLsizei h);
 void keyboard(unsigned char tecla, int x, int y);
 void submarino();
-void peixe(PeixesLeft*, int);
-PeixesLeft* alocarPeixesLeft();
-PeixesLeft** alocarVetorPeixesLeft();
+void peixe(Objetos*, int);
+Objetos* alocarObjetos();
+Objetos** alocarVetorObjetos();
 void criarPeixes();
 void definirPeixe();
 void anima(int);
-int alturaPeixesLeft[3] = { -150, -50, 50 };
+int alturaObjetos[3] = { -150, -50, 50 };
 int circ_pnt = 300;
 float xLeftSub = 999;
 float xRightSub = -999;
@@ -37,14 +37,21 @@ float yTopSub = 100;
 float yDownSub = 80;
 float transH = 30;
 float transV = 80;
-PeixesLeft** peixesLeft;
+Objetos** peixesLeft;
+Objetos** peixesRight;
 int tamPeixes = 3;
 void verificarColisao();
+float transHInicial = transH;
+float transVInicial = transV;
+int oxigenio = 10;
+int vida = 3;
+int pontuacao = 0;
 
 int main(int argc, char** argv)
 {
 
-	peixesLeft = alocarVetorPeixesLeft();
+	peixesLeft = alocarVetorObjetos();
+	peixesRight = alocarVetorObjetos();
 	criarPeixes();
 	glutInit(&argc, argv);	// suporte a janelas
 
@@ -65,15 +72,15 @@ int main(int argc, char** argv)
 	return(0);
 }
 
-PeixesLeft** alocarVetorPeixesLeft() {
-	PeixesLeft** peixesLeft;
-	peixesLeft = (PeixesLeft**)malloc(sizeof(PeixesLeft*) * tamPeixes);
+Objetos** alocarVetorObjetos() {
+	Objetos** peixesLeft;
+	peixesLeft = (Objetos**)malloc(sizeof(Objetos*) * tamPeixes);
 	return peixesLeft;
 }
 
 void criarPeixes() {
 	for (int i = 0; i < tamPeixes; i++) {
-		peixesLeft[i] = alocarPeixesLeft();
+		peixesLeft[i] = alocarObjetos();
 	}
 }
 
@@ -214,7 +221,7 @@ void submarino() {
 	glPopMatrix();
 }
 
-void peixe(PeixesLeft* peixe, int altura) {
+void peixe(Objetos* peixe, int altura) {
 
 	peixe->xLeft = -345;
 	peixe->xRight = -305;
@@ -275,13 +282,13 @@ void definirPeixe() {
 	{
 		glPushMatrix();
 		glTranslatef(peixesLeft[i]->trans, 0, 0);
-		peixe(peixesLeft[i], alturaPeixesLeft[i]);
+		peixe(peixesLeft[i], alturaObjetos[i]);
 		glPopMatrix();
 	}
 }
 
-PeixesLeft* alocarPeixesLeft() {
-	PeixesLeft* peixe = (PeixesLeft*)malloc(sizeof(PeixesLeft));
+Objetos* alocarObjetos() {
+	Objetos* peixe = (Objetos*)malloc(sizeof(Objetos));
 	peixe->trans = 0;
 
 	return peixe;
@@ -306,14 +313,18 @@ void verificarColisao() {
 	{
 		printf("\n Peixe1 Top: %f, Peixe1 Down: %f, Cord Submarino: %f\n", peixesLeft[i]->yTop, peixesLeft[i]->yDown, yTopSub + transV);
 
-		if (yTopSub + transV -80>= peixesLeft[i]->yDown && yTopSub + transV -80<= peixesLeft[i]->yTop) {
-			printf("COLISAAAAAAAAAAAAAAAAAAAAO");
+		if (((yTopSub + transV - transVInicial >= peixesLeft[i]->yDown && yTopSub + transV - transVInicial <= peixesLeft[i]->yTop)
+			||(yDownSub + transV - transVInicial <= peixesLeft[i]->yTop && yDownSub + transV - transVInicial >= peixesLeft[i]->yDown))) {
+			printf("VERTICAAAAAAL");
+			if ((xRightSub + transH - transHInicial>= peixesLeft[i]->xLeft + peixesLeft[i]->trans && xRightSub + transH - transHInicial <= peixesLeft[i]->xRight + peixesLeft[i]->trans)
+				|| (xLeftSub + transH - transHInicial <= peixesLeft[i]->xRight + peixesLeft[i]->trans && xLeftSub + transH - transHInicial >= peixesLeft[i]->xLeft + peixesLeft[i]->trans)) {
+				transH = transHInicial;
+				transV = transVInicial;
+				peixesLeft[i]->trans = 0;
+			}
 		}
-	/*	if (((xRightSub + transH) >= (peixesLeft[i]->xLeft + peixesLeft[i]->trans)) && ((xRightSub + transH) <= (peixesLeft[i]->xRight + peixesLeft[i]->trans)) && ((yTopSub + transV) >= (peixesLeft[i]->yDown)) && ((yTopSub + transV) <= (peixesLeft[i]->yTop))) {
-			printf("Trans H: %f", transH);
-		}*/
 	}
-}	
+}
 
 void anima(int valor)
 {
