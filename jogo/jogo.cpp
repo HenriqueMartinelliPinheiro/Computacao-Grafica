@@ -7,7 +7,7 @@
 #include <math.h>
 #include <limits.h>
 
-#define janela_altura 400
+#define janela_altura 500
 #define janela_largura 600
 #define PI 3.14159
 
@@ -32,18 +32,20 @@ void criarObjetos();
 void definirPeixe();
 void anima(int);
 void verificarColisaoPeixes();
-void verificarColisao();
+void verificarColisoes();
 void alocarMemoria();
 void definirMergulhador();
+void criarMergulhadorLeft(Objetos*, int);
+void criarMergulhadorRight(Objetos*, int);
 
 Objetos** peixesLeft;
 Objetos** peixesRight;
 Objetos** mergulhadorLeft;
 Objetos** mergulhadorRight;
 float transH = 30;
-float transV = 80;
+float transV = 110;
 int tamPeixes = 3;
-int tamMergulhadores = 3;
+int tamMergulhadores = 2;
 float transHInicial = transH;
 float transVInicial = transV;
 int oxigenio = 10;
@@ -51,11 +53,13 @@ int vida = 3;
 int pontuacao = 0;
 int alturaPeixesLeft[3] = { -130, -30, 70 };
 int alturaPeixesRight[3] = { -170, -70, 30 };
+int alturaMergulhadoresLeft[2] = { 100, -105 };
+int alturaMergulhadoresRight[2] = { -0, -205 };
 int circ_pnt = 300;
 float xLeftSub = 999;
 float xRightSub = -999;
-float yTopSub = 100;
-float yDownSub = 80;
+float yTopSub = 130;
+float yDownSub = 110;
 
 
 int main(int argc, char** argv)
@@ -89,19 +93,19 @@ void alocarMemoria() {
 	mergulhadorRight = alocarVetorMergulhadores();
 }
 
-Objetos** alocarVetorPeixes() {
+Objetos** alocarVetorPeixes() { //aloca memoria pros objetos
 	Objetos** peixesLeft;
 	peixesLeft = (Objetos**)malloc(sizeof(Objetos*) * tamPeixes);
 	return peixesLeft;
 }
 
-Objetos** alocarVetorMergulhadores() {
+Objetos** alocarVetorMergulhadores() { //aloca memoria para os mergulhadores
 	Objetos** peixesLeft;
 	peixesLeft = (Objetos**)malloc(sizeof(Objetos*) * tamPeixes);
 	return peixesLeft;
 }
 
-void criarObjetos() {
+void criarObjetos() {   //cria os vetores do objeto
 	for (int i = 0; i < tamPeixes; i++) {
 		peixesLeft[i] = alocarObjetos();
 		peixesRight[i] = alocarObjetos();
@@ -112,30 +116,23 @@ void criarObjetos() {
 
 void keyboard(unsigned char tecla, int x, int y)
 {
-	/*printf("\ntecla %c\n", tecla);
-	printf("\n\nDigite 1 para esquerda: ");
-	printf("\ntecla %c\n", tecla);
-	printf("\no mouse estava em %d x %d\n", x, y);*/
 	if (tecla == 'a')
 	{
 		if ((transH - xLeftSub) > (-300)) {
 			transH = transH - 2;
-			//printf("\n o valor de translacao H e %.2f\n", transH);
 		}
 	}
 	if (tecla == 'd')
 	{
 		if ((transH + xRightSub) < 300) {
 			transH = transH + 2;
-			//printf("\n o valor de translacao H e %.2f\n", transH);
 		}
 
 	}
 
 	if (tecla == 'w') {
-		if (transV < 80) {
+		if (transV < 110) {
 			transV += 2;
-			//printf("\n o valor de translacao e  V %.2f\n", transV);
 		}
 
 	}
@@ -143,7 +140,6 @@ void keyboard(unsigned char tecla, int x, int y)
 	if (tecla == 's') {
 		if (transV > -200) {
 			transV -= 2;
-			//printf("\n o valor de translacao e V %.2f\n", transV);
 		}
 
 	}
@@ -151,20 +147,18 @@ void keyboard(unsigned char tecla, int x, int y)
 	glutPostRedisplay();
 }
 
-void ceu() {
+void ceu() { //desenha o ceu
 	glBegin(GL_QUADS);
 	glColor3f(0.26, 0.9, 0.96);  // cor
-	glVertex2f(-300, 200);
-	glVertex2f(300, 200);
-	glVertex2f(300, 100);
-	glVertex2f(-300, 100);
+	glVertex2f(-300, 250);
+	glVertex2f(300, 250);
+	glVertex2f(300, 130);
+	glVertex2f(-300, 130);
 
 	glEnd();
 }
 
-
-
-void submarino() {
+void submarino() { //desenha o submarino
 
 	glPushMatrix();
 	glTranslatef(transH, transV, 0);
@@ -247,7 +241,7 @@ void submarino() {
 	glPopMatrix();
 }
 
-void peixeLeft(Objetos* peixe, int altura, float xLeft, float xRight) {
+void peixeLeft(Objetos* peixe, int altura, float xLeft, float xRight) { //desenha os peixes da esquerda
 
 	peixe->xLeft = xLeft;
 	peixe->xRight = xRight;
@@ -274,7 +268,7 @@ void peixeLeft(Objetos* peixe, int altura, float xLeft, float xRight) {
 	glEnd();
 }
 
-void peixeRight(Objetos* peixe, int altura, float xLeft, float xRight) {
+void peixeRight(Objetos* peixe, int altura, float xLeft, float xRight) { //desenha os peixes da direita
 
 	peixe->xLeft = xLeft;
 	peixe->xRight = xRight;
@@ -301,14 +295,202 @@ void peixeRight(Objetos* peixe, int altura, float xLeft, float xRight) {
 	glEnd();
 }
 
-void desenhar()
+void definirPeixe() {
+	for (int i = 0; i < tamPeixes; i++)
+	{
+		glPushMatrix();
+		glTranslatef(peixesLeft[i]->trans, 0, 0);
+		peixeLeft(peixesLeft[i], alturaPeixesLeft[i], -345, -305);
+		glPopMatrix();
+
+		glPushMatrix();
+		glTranslatef(peixesRight[i]->trans, 0, 0);
+		peixeRight(peixesRight[i], alturaPeixesRight[i], 305, 345);
+		glPopMatrix();
+	}
+}
+
+Objetos* alocarObjetos() {
+	Objetos* peixe = (Objetos*)malloc(sizeof(Objetos));
+	peixe->trans = 0;
+
+	return peixe;
+}
+
+void criarMergulhadorLeft(Objetos* mergulhador, int altura) {
+	mergulhador->xLeft = -315;
+	mergulhador->xRight = -305;
+	mergulhador->yTop = altura;
+	mergulhador->yDown = altura - 18;
+
+	glEnable(GL_POINT_SMOOTH);
+	glPointSize(6);
+	glColor3ub(19, 55, 244);  // cor
+	glBegin(GL_POINTS); // cabeça
+	glVertex2f(mergulhador->xRight - 5, mergulhador->yTop);
+	glEnd();
+
+	// Desenhe o corpo
+	glBegin(GL_LINES);
+	glVertex2f(mergulhador->xRight - 5, mergulhador->yTop - 3);
+	glVertex2f(mergulhador->xRight - 5, mergulhador->yDown + 5);
+	glEnd();
+
+	// Desenhe os braços
+	glBegin(GL_LINES);
+	glVertex2f(mergulhador->xRight - 5, mergulhador->yTop - 4);
+	glVertex2f(mergulhador->xLeft, mergulhador->yTop - 4);
+	glEnd();
+
+	glBegin(GL_LINES);
+	glVertex2f(mergulhador->xRight - 5, mergulhador->yTop - 4);
+	glVertex2f(mergulhador->xRight, mergulhador->yTop - 4);
+	glEnd();
+
+	// Desenhe as pernas
+	glBegin(GL_LINES);
+	glVertex2f(mergulhador->xRight - 5, mergulhador->yDown + 5);
+	glVertex2f(mergulhador->xLeft, mergulhador->yDown);
+	glEnd();
+
+	glBegin(GL_LINES);
+	glVertex2f(mergulhador->xRight - 5, mergulhador->yDown + 5);
+	glVertex2f(mergulhador->xRight, mergulhador->yDown);
+	glEnd();
+
+}
+
+void criarMergulhadorRight(Objetos* mergulhador, int altura) {
+	mergulhador->xLeft = 305; //-5
+	mergulhador->xRight = 315; //5
+	mergulhador->yTop = altura; //8
+	mergulhador->yDown = altura - 18;//-10
+
+	glEnable(GL_POINT_SMOOTH);
+	glPointSize(6);
+	glColor3ub(19, 55, 244);  // cor
+	glBegin(GL_POINTS); // cabeça
+	glVertex2f(mergulhador->xRight - 5, mergulhador->yTop);
+	glEnd();
+
+	// Desenhe o corpo
+	glBegin(GL_LINES);
+	glVertex2f(mergulhador->xRight - 5, mergulhador->yTop - 3);
+	glVertex2f(mergulhador->xRight - 5, mergulhador->yDown + 5);
+	glEnd();
+
+	// Desenhe os braços
+	glBegin(GL_LINES);
+	glVertex2f(mergulhador->xRight - 5, mergulhador->yTop - 4);
+	glVertex2f(mergulhador->xLeft, mergulhador->yTop - 4);
+	glEnd();
+
+	glBegin(GL_LINES);
+	glVertex2f(mergulhador->xRight - 5, mergulhador->yTop - 4);
+	glVertex2f(mergulhador->xRight, mergulhador->yTop - 4);
+	glEnd();
+
+	// Desenhe as pernas
+	glBegin(GL_LINES);
+	glVertex2f(mergulhador->xRight - 5, mergulhador->yDown + 5);
+	glVertex2f(mergulhador->xLeft, mergulhador->yDown);
+	glEnd();
+
+	glBegin(GL_LINES);
+	glVertex2f(mergulhador->xRight - 5, mergulhador->yDown + 5);
+	glVertex2f(mergulhador->xRight, mergulhador->yDown);
+	glEnd();
+
+}
+
+void definirMergulhador() {
+	for (int i = 0; i < tamMergulhadores; i++) {
+		glPushMatrix();
+		glTranslatef(mergulhadorLeft[i]->trans, 0, 0);
+		criarMergulhadorLeft(mergulhadorLeft[i], alturaMergulhadoresLeft[i]);
+		glPopMatrix();
+		glPushMatrix();
+		glTranslatef(mergulhadorRight[i]->trans, 0, 0);
+		criarMergulhadorRight(mergulhadorRight[i], alturaMergulhadoresRight[i]);
+		glPopMatrix();
+	}
+}
+
+
+void verificarColisoes() {
+	verificarColisaoPeixes();
+}
+
+void verificarColisaoPeixes() { //verifica a colisao dos peixes com o submarino
+	for (int i = 0; i < tamPeixes; i++)
+	{
+		if (((yTopSub + transV - transVInicial >= peixesLeft[i]->yDown && yTopSub + transV - transVInicial <= peixesLeft[i]->yTop)
+			|| (yDownSub + transV - transVInicial <= peixesLeft[i]->yTop && yDownSub + transV - transVInicial >= peixesLeft[i]->yDown))) {
+			if ((xRightSub + transH - transHInicial >= peixesLeft[i]->xLeft + peixesLeft[i]->trans && xRightSub + transH - transHInicial <= peixesLeft[i]->xRight + peixesLeft[i]->trans)
+				|| (xLeftSub + transH - transHInicial <= peixesLeft[i]->xRight + peixesLeft[i]->trans && xLeftSub + transH - transHInicial >= peixesLeft[i]->xLeft + peixesLeft[i]->trans)) {
+				transH = transHInicial;
+				transV = transVInicial;
+				peixesLeft[i]->trans = 0;
+				if (vida>0){
+					vida--;
+				}
+			}
+		}
+		if (((yTopSub + transV - transVInicial >= peixesRight[i]->yDown && yTopSub + transV - transVInicial <= peixesRight[i]->yTop)
+			|| (yDownSub + transV - transVInicial <= peixesRight[i]->yTop && yDownSub + transV - transVInicial >= peixesRight[i]->yDown))) {
+			if ((xRightSub + transH - transHInicial >= peixesRight[i]->xLeft + peixesRight[i]->trans && xRightSub + transH - transHInicial <= peixesRight[i]->xRight + peixesRight[i]->trans)
+				|| (xLeftSub + transH - transHInicial <= peixesRight[i]->xRight + peixesRight[i]->trans && xLeftSub + transH - transHInicial >= peixesRight[i]->xLeft + peixesRight[i]->trans)) {
+				transH = transHInicial;
+				transV = transVInicial;
+				peixesRight[i]->trans = 0;
+				if (vida > 0) {
+					vida--;
+				}
+			}
+		}
+	}
+}
+void anima(int valor)  //animacao
+{
+	for (int i = 0; i < tamPeixes; i++)
+	{
+		//printf("Translate direita %i : %f, Translate: %f, Soma: %f \n", i, peixesRight[i]->xRight, peixesRight[i]->trans, peixesRight[i]->trans + peixesRight[i]->xRight);
+		if ((peixesLeft[i]->xLeft + peixesLeft[i]->trans) >= 300) {
+			peixesLeft[i]->trans = 0;
+		}
+		if ((peixesRight[i]->xRight + peixesRight[i]->trans) <= -300) {
+			peixesRight[i]->trans = 0;
+		}
+
+		peixesLeft[i]->trans += 5;
+		peixesRight[i]->trans -= 5;
+	}
+
+	for (int i = 0; i < tamMergulhadores; i++) {
+		if (mergulhadorLeft[i]->xLeft + mergulhadorLeft[i]->trans > 300) {
+			mergulhadorLeft[i]->trans = 0;
+		}
+		mergulhadorLeft[i]->trans += 3;
+
+		if (mergulhadorRight[i]->xRight + mergulhadorRight[i]->trans < -300) {
+			mergulhadorRight[i]->trans = 0;
+		}
+		mergulhadorRight[i]->trans -= 3;
+	}
+
+	glutPostRedisplay();
+	glutTimerFunc(150, anima, 1);
+}
+
+void desenhar() //desenha tudo
 {
 	ceu();
+
 	glPushMatrix();
-	definirMergulhador();
 	submarino();
 	glPopMatrix();
-	verificarColisao();
+	definirMergulhador();
+	verificarColisoes();
 	definirPeixe();
 }
 
@@ -330,75 +512,6 @@ void display()
 
 }
 
-void definirPeixe() {
-	for (int i = 0; i < tamPeixes; i++)
-	{
-		glPushMatrix();
-		glTranslatef(peixesLeft[i]->trans, 0, 0);
-		peixeLeft(peixesLeft[i], alturaPeixesLeft[i], -345, -305);
-		glPopMatrix();
-		glPushMatrix();
-		glTranslatef(peixesRight[i]->trans, 0, 0);
-		peixeRight(peixesRight[i], alturaPeixesRight[i], 305, 345);
-		glPopMatrix();
-	}
-}
-
-Objetos* alocarObjetos() {
-	Objetos* peixe = (Objetos*)malloc(sizeof(Objetos));
-	peixe->trans = 0;
-
-	return peixe;
-}
-
-void mergulhador(Objetos* mergulhador) {
-	mergulhador->xLeft = -30;
-	mergulhador->xRight = -20;
-	mergulhador->yTop = -999;
-	mergulhador->yDown = -20;
-	glEnable(GL_POINT_SMOOTH);
-	glPointSize(6);
-	glColor3ub(19, 55, 244);  // cor
-	glBegin(GL_POINTS); // cabeça
-	glVertex2f(0.0f, 8);
-	glEnd();
-
-	// Desenhe o corpo
-	glBegin(GL_LINES);
-	glVertex2f(0, 5);
-	glVertex2f(0, -5);
-	glEnd();
-
-	// Desenhe os braços
-	glBegin(GL_LINES);
-	glVertex2f(0, 4);
-	glVertex2f(-5, 4);
-	glEnd();
-
-	glBegin(GL_LINES);
-	glVertex2f(0, 4);
-	glVertex2f(5, 4);
-	glEnd();
-
-	// Desenhe as pernas
-	glBegin(GL_LINES);
-	glVertex2f(0, -5);
-	glVertex2f(-5, -10);
-	glEnd();
-
-	glBegin(GL_LINES);
-	glVertex2f(0, -5);
-	glVertex2f(5, -10);
-	glEnd();
-
-}
-
-void definirMergulhador(){
-	for (int i = 0; i < tamMergulhadores; i++){
-		mergulhador(mergulhadorLeft[i]);
-		mergulhador(mergulhadorRight[i]);
-	}
-}
 void tela(GLsizei w, GLsizei h)
 {
 
@@ -410,49 +523,4 @@ void tela(GLsizei w, GLsizei h)
 
 	glMatrixMode(GL_MODELVIEW);
 
-}
-
-void verificarColisao() {
-	verificarColisaoPeixes();
-}
-
-void verificarColisaoPeixes() {
-	for (int i = 0; i < tamPeixes; i++)
-	{
-		if (((yTopSub + transV - transVInicial >= peixesLeft[i]->yDown && yTopSub + transV - transVInicial <= peixesLeft[i]->yTop)
-			|| (yDownSub + transV - transVInicial <= peixesLeft[i]->yTop && yDownSub + transV - transVInicial >= peixesLeft[i]->yDown))) {
-			if ((xRightSub + transH - transHInicial >= peixesLeft[i]->xLeft + peixesLeft[i]->trans && xRightSub + transH - transHInicial <= peixesLeft[i]->xRight + peixesLeft[i]->trans)
-				|| (xLeftSub + transH - transHInicial <= peixesLeft[i]->xRight + peixesLeft[i]->trans && xLeftSub + transH - transHInicial >= peixesLeft[i]->xLeft + peixesLeft[i]->trans)) {
-				transH = transHInicial;
-				transV = transVInicial;
-				peixesLeft[i]->trans = 0;
-			}
-		}
-		if (((yTopSub + transV - transVInicial >= peixesRight[i]->yDown && yTopSub + transV - transVInicial <= peixesRight[i]->yTop)
-			|| (yDownSub + transV - transVInicial <= peixesRight[i]->yTop && yDownSub + transV - transVInicial >= peixesRight[i]->yDown))) {
-			if ((xRightSub + transH - transHInicial >= peixesRight[i]->xLeft + peixesRight[i]->trans && xRightSub + transH - transHInicial <= peixesRight[i]->xRight + peixesRight[i]->trans)
-				|| (xLeftSub + transH - transHInicial <= peixesRight[i]->xRight + peixesRight[i]->trans && xLeftSub + transH - transHInicial >= peixesRight[i]->xLeft + peixesRight[i]->trans)) {
-				transH = transHInicial;
-				transV = transVInicial;
-				peixesRight[i]->trans = 0;
-			}
-		}
-	}
-}
-void anima(int valor)
-{
-	for (int i = 0; i < tamPeixes; i++)
-	{
-		printf("Translate direita %i : %f, Translate: %f, Soma: %f \n", i, peixesRight[i]->xRight, peixesRight[i]->trans, peixesRight[i]->trans + peixesRight[i]->xRight);
-		if ((peixesLeft[i]->xLeft + peixesLeft[i]->trans) >= 300) {
-			peixesLeft[i]->trans = 0;
-		}
-		if ((peixesRight[i]->xRight + peixesRight[i]->trans) <= -300) {
-			peixesRight[i]->trans = 0;
-		}
-		peixesLeft[i]->trans += 5;
-		peixesRight[i]->trans -= 5;
-	}
-	glutPostRedisplay();
-	glutTimerFunc(150, anima, 1);
 }
