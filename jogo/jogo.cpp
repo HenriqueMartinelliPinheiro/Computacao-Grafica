@@ -26,13 +26,29 @@ void submarino();
 void peixeLeft(Objetos*, int, float xLeft, float xRight);
 void peixeRight(Objetos*, int, float xLeft, float xRight);
 Objetos* alocarObjetos();
-Objetos** alocarVetorObjetos();
+Objetos** alocarVetorPeixes();
+Objetos** alocarVetorMergulhadores();
 void criarObjetos();
 void definirPeixe();
 void anima(int);
 void verificarColisaoPeixes();
 void verificarColisao();
+void alocarMemoria();
+void definirMergulhador();
 
+Objetos** peixesLeft;
+Objetos** peixesRight;
+Objetos** mergulhadorLeft;
+Objetos** mergulhadorRight;
+float transH = 30;
+float transV = 80;
+int tamPeixes = 3;
+int tamMergulhadores = 3;
+float transHInicial = transH;
+float transVInicial = transV;
+int oxigenio = 10;
+int vida = 3;
+int pontuacao = 0;
 int alturaPeixesLeft[3] = { -130, -30, 70 };
 int alturaPeixesRight[3] = { -170, -70, 30 };
 int circ_pnt = 300;
@@ -40,22 +56,12 @@ float xLeftSub = 999;
 float xRightSub = -999;
 float yTopSub = 100;
 float yDownSub = 80;
-float transH = 30;
-float transV = 80;
-Objetos** peixesLeft;
-Objetos** peixesRight;
-int tamPeixes = 3;
-float transHInicial = transH;
-float transVInicial = transV;
-int oxigenio = 10;
-int vida = 3;
-int pontuacao = 0;
+
 
 int main(int argc, char** argv)
 {
 
-	peixesLeft = alocarVetorObjetos();
-	peixesRight = alocarVetorObjetos();
+	alocarMemoria();
 	criarObjetos();
 	glutInit(&argc, argv);	// suporte a janelas
 
@@ -76,7 +82,20 @@ int main(int argc, char** argv)
 	return(0);
 }
 
-Objetos** alocarVetorObjetos() {
+void alocarMemoria() {
+	peixesLeft = alocarVetorPeixes();
+	peixesRight = alocarVetorPeixes();
+	mergulhadorLeft = alocarVetorMergulhadores();
+	mergulhadorRight = alocarVetorMergulhadores();
+}
+
+Objetos** alocarVetorPeixes() {
+	Objetos** peixesLeft;
+	peixesLeft = (Objetos**)malloc(sizeof(Objetos*) * tamPeixes);
+	return peixesLeft;
+}
+
+Objetos** alocarVetorMergulhadores() {
 	Objetos** peixesLeft;
 	peixesLeft = (Objetos**)malloc(sizeof(Objetos*) * tamPeixes);
 	return peixesLeft;
@@ -86,6 +105,8 @@ void criarObjetos() {
 	for (int i = 0; i < tamPeixes; i++) {
 		peixesLeft[i] = alocarObjetos();
 		peixesRight[i] = alocarObjetos();
+		mergulhadorLeft[i] = alocarObjetos();
+		mergulhadorRight[i] = alocarObjetos();
 	}
 }
 
@@ -226,7 +247,7 @@ void submarino() {
 	glPopMatrix();
 }
 
-void peixeLeft(Objetos* peixe, int altura,float xLeft, float xRight) {
+void peixeLeft(Objetos* peixe, int altura, float xLeft, float xRight) {
 
 	peixe->xLeft = xLeft;
 	peixe->xRight = xRight;
@@ -271,7 +292,7 @@ void peixeRight(Objetos* peixe, int altura, float xLeft, float xRight) {
 	glBegin(GL_TRIANGLES);
 	glVertex2f(peixe->xRight, peixe->yDown);
 	glVertex2f(peixe->xRight, peixe->yTop);
-	glVertex2f(peixe->xRight -20, peixe->yTop - 10);
+	glVertex2f(peixe->xRight - 20, peixe->yTop - 10);
 	glEnd();
 
 	glColor3ub(0, 0, 0);  // cor
@@ -284,7 +305,7 @@ void desenhar()
 {
 	ceu();
 	glPushMatrix();
-
+	definirMergulhador();
 	submarino();
 	glPopMatrix();
 	verificarColisao();
@@ -318,7 +339,7 @@ void definirPeixe() {
 		glPopMatrix();
 		glPushMatrix();
 		glTranslatef(peixesRight[i]->trans, 0, 0);
-		peixeRight(peixesRight[i], alturaPeixesRight[i],305, 345);
+		peixeRight(peixesRight[i], alturaPeixesRight[i], 305, 345);
 		glPopMatrix();
 	}
 }
@@ -330,6 +351,54 @@ Objetos* alocarObjetos() {
 	return peixe;
 }
 
+void mergulhador(Objetos* mergulhador) {
+	mergulhador->xLeft = -30;
+	mergulhador->xRight = -20;
+	mergulhador->yTop = -999;
+	mergulhador->yDown = -20;
+	glEnable(GL_POINT_SMOOTH);
+	glPointSize(6);
+	glColor3ub(19, 55, 244);  // cor
+	glBegin(GL_POINTS); // cabeça
+	glVertex2f(0.0f, 8);
+	glEnd();
+
+	// Desenhe o corpo
+	glBegin(GL_LINES);
+	glVertex2f(0, 5);
+	glVertex2f(0, -5);
+	glEnd();
+
+	// Desenhe os braços
+	glBegin(GL_LINES);
+	glVertex2f(0, 4);
+	glVertex2f(-5, 4);
+	glEnd();
+
+	glBegin(GL_LINES);
+	glVertex2f(0, 4);
+	glVertex2f(5, 4);
+	glEnd();
+
+	// Desenhe as pernas
+	glBegin(GL_LINES);
+	glVertex2f(0, -5);
+	glVertex2f(-5, -10);
+	glEnd();
+
+	glBegin(GL_LINES);
+	glVertex2f(0, -5);
+	glVertex2f(5, -10);
+	glEnd();
+
+}
+
+void definirMergulhador(){
+	for (int i = 0; i < tamMergulhadores; i++){
+		mergulhador(mergulhadorLeft[i]);
+		mergulhador(mergulhadorRight[i]);
+	}
+}
 void tela(GLsizei w, GLsizei h)
 {
 
