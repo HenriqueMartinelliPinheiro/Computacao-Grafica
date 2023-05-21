@@ -32,11 +32,16 @@ void criarObjetos();
 void definirPeixe();
 void anima(int);
 void verificarColisaoPeixes();
+void verificarColisaoMergulhadores();
 void verificarColisoes();
 void alocarMemoria();
 void definirMergulhador();
 void criarMergulhadorLeft(Objetos*, int);
 void criarMergulhadorRight(Objetos*, int);
+void desenharCoracoes();
+void desenharBolhas();
+void reduzirOxigenio(int);
+void perderVida();
 
 Objetos** peixesLeft;
 Objetos** peixesRight;
@@ -49,6 +54,7 @@ int tamMergulhadores = 2;
 float transHInicial = transH;
 float transVInicial = transV;
 int oxigenio = 10;
+int contadorMergulhadores = 0;
 int vida = 3;
 int pontuacao = 0;
 int alturaPeixesLeft[3] = { -130, -30, 70 };
@@ -60,7 +66,6 @@ float xLeftSub = 999;
 float xRightSub = -999;
 float yTopSub = 130;
 float yDownSub = 110;
-
 
 int main(int argc, char** argv)
 {
@@ -74,13 +79,14 @@ int main(int argc, char** argv)
 
 	glutInitWindowSize(janela_largura, janela_altura);  // tamanho da janela
 	glutInitWindowPosition(100, 100); // posicao que surge a janela
-	glutCreateWindow("colisao_quadrado"); // cria janela
+	glutCreateWindow("Sea Quest"); // cria janela
 
 	//glutFullScreen();
 	glutKeyboardFunc(&keyboard);  // chama teclado
 	glutReshapeFunc(tela);  // configura a tela
 	glutDisplayFunc(display);
 	glutTimerFunc(150, anima, 1);
+	glutTimerFunc(2000, reduzirOxigenio, 1);
 	glutMainLoop(); // redesenhar
 
 	return(0);
@@ -116,6 +122,7 @@ void criarObjetos() {   //cria os vetores do objeto
 
 void keyboard(unsigned char tecla, int x, int y)
 {
+	if (vida>0){
 	if (tecla == 'a')
 	{
 		if ((transH - xLeftSub) > (-300)) {
@@ -124,26 +131,24 @@ void keyboard(unsigned char tecla, int x, int y)
 	}
 	if (tecla == 'd')
 	{
-		if ((transH + xRightSub) < 300) {
+		if ((transH + xRightSub) < 300 + transHInicial) {
 			transH = transH + 2;
 		}
-
 	}
 
 	if (tecla == 'w') {
 		if (transV < 110) {
 			transV += 2;
 		}
-
 	}
 
 	if (tecla == 's') {
-		if (transV > -200) {
+		if (transV > -250) {
 			transV -= 2;
 		}
 
 	}
-
+	}
 	glutPostRedisplay();
 }
 
@@ -209,7 +214,7 @@ void submarino() { //desenha o submarino
 		ang = (2 * PI * i) / circ_pnt;
 		glVertex2f(cos(ang) * raioX, sin(ang) * raioY);
 		if ((cos(ang) * raioX) > xRightSub) {
-			xRightSub = (cos(ang) * raioX) + 54;
+			xRightSub = (cos(ang) * raioX) + 86;
 		}
 	}
 	glEnd();
@@ -416,14 +421,74 @@ void definirMergulhador() {
 	}
 }
 
+void desenharCoracoes() {
+	int x1 = -300, x2 = -290, x3 = -280, y1 = 250, y2 = 240, y3 = 230, i = vida;
+	for (i = 0; i < vida; i++){
+		glColor3ub(255, 0, 0);
+		glBegin(GL_TRIANGLES);
+		// Triângulo esquerdo do coração
+		glVertex2f(x1, y2);
+		glVertex2f(x1, y1);
+		glVertex2f(x2, y2);
+
+		// Triângulo direito do coração
+		glVertex2f(x2, y2);
+		glVertex2f(x3, y2);
+		glVertex2f(x3, y1);
+
+		glVertex2f(x1, y2);
+		glVertex2f(x2, y3);
+		glVertex2f(x3, y2);
+		glEnd();
+
+		x1 += 30, x2 += 30, x3 += 30;
+	}
+}
+
+void reduzirOxigenio(int valor) {
+	if (transV<110 && oxigenio>0) {
+		oxigenio--;
+	}
+	if (oxigenio==0) {
+		perderVida();
+	}
+	glutPostRedisplay();
+	glutTimerFunc(2000, reduzirOxigenio, 1);
+}
+
+void perderVida() {
+	vida--;
+	transH = transHInicial;
+	transV = transVInicial;
+}
+void desenharBolhas() {
+	float ang;
+	float raioX = 7;
+	float raioY=7;
+	float transX = -290;
+	for (int i = 0; i < oxigenio; i++){
+		glPushMatrix();
+		glTranslatef(transX, 215, 0);
+		glBegin(GL_POLYGON);
+		glColor3ub(235, 235, 255);
+		for (int i = 0; i < circ_pnt; i++)
+		{
+			ang = (2 * PI * i) / circ_pnt;
+			glVertex2f(cos(ang) * raioX, sin(ang) * raioY);
+		}
+		glEnd();
+		glPopMatrix();
+		transX += 14;
+	}
+}
 
 void verificarColisoes() {
 	verificarColisaoPeixes();
+	verificarColisaoMergulhadores();
 }
 
 void verificarColisaoPeixes() { //verifica a colisao dos peixes com o submarino
-	for (int i = 0; i < tamPeixes; i++)
-	{
+	for (int i = 0; i < tamPeixes; i++){
 		if (((yTopSub + transV - transVInicial >= peixesLeft[i]->yDown && yTopSub + transV - transVInicial <= peixesLeft[i]->yTop)
 			|| (yDownSub + transV - transVInicial <= peixesLeft[i]->yTop && yDownSub + transV - transVInicial >= peixesLeft[i]->yDown))) {
 			if ((xRightSub + transH - transHInicial >= peixesLeft[i]->xLeft + peixesLeft[i]->trans && xRightSub + transH - transHInicial <= peixesLeft[i]->xRight + peixesLeft[i]->trans)
@@ -431,8 +496,16 @@ void verificarColisaoPeixes() { //verifica a colisao dos peixes com o submarino
 				transH = transHInicial;
 				transV = transVInicial;
 				peixesLeft[i]->trans = 0;
-				if (vida>0){
-					vida--;
+				if (vida > 0) {
+					perderVida();
+				}
+			}
+			else if (peixesLeft[i]->xLeft + peixesLeft[i]->trans > xLeftSub + transH - transHInicial && peixesLeft[i]->xRight + peixesLeft[i]->trans < xRightSub + transH - transHInicial) {
+				transH = transHInicial;
+				transV = transVInicial;
+				peixesLeft[i]->trans = 0;
+				if (vida > 0) {
+					perderVida();
 				}
 			}
 		}
@@ -444,7 +517,53 @@ void verificarColisaoPeixes() { //verifica a colisao dos peixes com o submarino
 				transV = transVInicial;
 				peixesRight[i]->trans = 0;
 				if (vida > 0) {
-					vida--;
+					perderVida();
+				}
+			}else if (peixesRight[i]->xLeft + peixesRight[i]->trans > xLeftSub + transH - transHInicial && peixesRight[i]->xRight + peixesRight[i]->trans < xRightSub + transH - transHInicial) {
+				transH = transHInicial;
+				transV = transVInicial;
+				peixesRight[i]->trans = 0;
+				if (vida > 0) {
+					perderVida();
+				}
+			}
+		}
+	}
+}
+
+void verificarColisaoMergulhadores() {
+	for (int i = 0; i < tamMergulhadores; i++)
+	{
+		if (((yTopSub + transV - transVInicial >= mergulhadorLeft[i]->yDown && yTopSub + transV - transVInicial <= mergulhadorLeft[i]->yTop)
+			|| (yDownSub + transV - transVInicial <= mergulhadorLeft[i]->yTop && yDownSub + transV - transVInicial >= mergulhadorLeft[i]->yDown))) {
+			if ((xRightSub + transH - transHInicial >= mergulhadorLeft[i]->xLeft + mergulhadorLeft[i]->trans && xRightSub + transH - transHInicial <= mergulhadorLeft[i]->xRight + mergulhadorLeft[i]->trans)
+				|| (xLeftSub + transH - transHInicial <= mergulhadorLeft[i]->xRight + mergulhadorLeft[i]->trans && xLeftSub + transH - transHInicial >= mergulhadorLeft[i]->xLeft + mergulhadorLeft[i]->trans)) {
+				mergulhadorLeft[i]->trans = 0;
+				if (contadorMergulhadores< 5) {
+					contadorMergulhadores++;
+				}
+			}
+			else if (mergulhadorLeft[i]->xLeft + mergulhadorLeft[i]->trans > xLeftSub + transH - transHInicial && mergulhadorLeft[i]->xRight + mergulhadorLeft[i]->trans < xRightSub + transH - transHInicial) {
+				mergulhadorLeft[i]->trans = 0;
+				if (contadorMergulhadores < 5) {
+					contadorMergulhadores++;
+				}
+			}
+		}
+
+		if (((yTopSub + transV - transVInicial >= mergulhadorRight[i]->yDown && yTopSub + transV - transVInicial <=mergulhadorRight[i]->yTop)
+			|| (yDownSub + transV - transVInicial <= mergulhadorRight[i]->yTop && yDownSub + transV - transVInicial >= mergulhadorRight[i]->yDown))) {
+			if ((xRightSub + transH - transHInicial >= mergulhadorRight[i]->xLeft + mergulhadorRight[i]->trans && xRightSub + transH - transHInicial <= mergulhadorRight[i]->xRight + mergulhadorRight[i]->trans)
+				|| (xLeftSub + transH - transHInicial <= mergulhadorRight[i]->xRight + mergulhadorRight[i]->trans && xLeftSub + transH - transHInicial >= mergulhadorRight[i]->xLeft + mergulhadorRight[i]->trans)) {
+				mergulhadorRight[i]->trans = 0;
+				if (contadorMergulhadores < 5) {
+					contadorMergulhadores++;
+				}
+			}
+			else if (mergulhadorRight[i]->xLeft + mergulhadorRight[i]->trans > xLeftSub + transH - transHInicial && mergulhadorRight[i]->xRight + mergulhadorRight[i]->trans < xRightSub + transH - transHInicial) {
+				mergulhadorRight[i]->trans = 0;
+				if (contadorMergulhadores < 5) {
+					contadorMergulhadores++;
 				}
 			}
 		}
@@ -479,7 +598,7 @@ void anima(int valor)  //animacao
 	}
 
 	glutPostRedisplay();
-	glutTimerFunc(150, anima, 1);
+	glutTimerFunc(150, anima, valor);
 }
 
 void desenhar() //desenha tudo
@@ -492,6 +611,8 @@ void desenhar() //desenha tudo
 	definirMergulhador();
 	verificarColisoes();
 	definirPeixe();
+	desenharCoracoes();
+	desenharBolhas();
 }
 
 void display()
