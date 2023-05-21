@@ -40,7 +40,7 @@ void criarMergulhadorLeft(Objetos*, int);
 void criarMergulhadorRight(Objetos*, int);
 void desenharCoracoes();
 void desenharBolhas();
-void reduzirOxigenio(int);
+void alterarOxigenio(int);
 void perderVida();
 
 Objetos** peixesLeft;
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
 	glutReshapeFunc(tela);  // configura a tela
 	glutDisplayFunc(display);
 	glutTimerFunc(150, anima, 1);
-	glutTimerFunc(2000, reduzirOxigenio, 1);
+	glutTimerFunc(2000, alterarOxigenio, 1);
 	glutMainLoop(); // redesenhar
 
 	return(0);
@@ -445,22 +445,27 @@ void desenharCoracoes() {
 	}
 }
 
-void reduzirOxigenio(int valor) {
+void alterarOxigenio(int valor) {
 	if (transV<110 && oxigenio>0) {
 		oxigenio--;
+	}
+	else if (transV>=110&&oxigenio<10) {
+		oxigenio++;
 	}
 	if (oxigenio==0) {
 		perderVida();
 	}
 	glutPostRedisplay();
-	glutTimerFunc(2000, reduzirOxigenio, 1);
+	glutTimerFunc(2000, alterarOxigenio, 1);
 }
 
 void perderVida() {
 	vida--;
 	transH = transHInicial;
 	transV = transVInicial;
+	oxigenio = 10;
 }
+
 void desenharBolhas() {
 	float ang;
 	float raioX = 7;
@@ -604,7 +609,6 @@ void anima(int valor)  //animacao
 void desenhar() //desenha tudo
 {
 	ceu();
-
 	glPushMatrix();
 	submarino();
 	glPopMatrix();
