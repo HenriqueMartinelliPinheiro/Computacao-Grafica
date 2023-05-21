@@ -1,6 +1,3 @@
-///  colisao de quadrados
-//////////////////////////////////////////////
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/glut.h>
@@ -597,7 +594,6 @@ void desenharIconesMergulhadores() { //desenha os icones do contador dos mergulh
 		xRight -= 11;
 	}
 }
-
 
 void liberarMergulhadores() { //libera os mergulhadores na superficie e aumenta a pontuacao
 	if (contadorMergulhadores > 0 && transV >= 110) {
