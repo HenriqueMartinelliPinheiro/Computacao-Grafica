@@ -15,6 +15,16 @@ typedef struct {
 	float trans;
 } Objetos;
 
+typedef struct {
+	float xLeft;
+	float xRight;
+	float yTop;
+	float yDown;
+	float transH;
+	float transV;
+	int direcao;
+} Tiros;
+
 void display(void);
 void tela(GLsizei w, GLsizei h);
 void keyboard(unsigned char tecla, int x, int y);
@@ -23,6 +33,9 @@ void peixeLeft(Objetos*, int, float xLeft, float xRight);
 void peixeRight(Objetos*, int, float xLeft, float xRight);
 Objetos* alocarObjetos();
 Objetos** alocarVetor(int);
+Tiros* alocarTiro();
+Tiros** alocarVetorTiros();
+
 void criarObjetos();
 void definirPeixe();
 void anima(int);
@@ -41,11 +54,18 @@ void desenharIconesMergulhadores();
 void liberarMergulhadores();
 void imprimirPontuacao();
 void liberarMemoriaVetor(int, Objetos**);
+void desenharTiro(Tiros*);
+void alterarTiros();
+void animarTiros();
+void animacaoPeixes();
+void animacaoMergulhadores();
 
 Objetos** peixesLeft;
 Objetos** peixesRight;
 Objetos** mergulhadorLeft;
 Objetos** mergulhadorRight;
+Tiros** tiros;
+
 float transH = 30;
 float transV = 110;
 int tamPeixes = 3;
@@ -56,17 +76,19 @@ int oxigenio = 10;
 int contadorMergulhadores = 0;
 int vida = 3;
 int pontuacao = 0;
+int qtd_tiros = 20;
 int alturaPeixesLeft[3] = { -130, -30, 70 };
 int alturaPeixesRight[3] = { -170, -70, 30 };
 int alturaMergulhadoresLeft[2] = { 100, -105 };
 int alturaMergulhadoresRight[2] = { -0, -205 };
 int circ_pnt = 300;
+int ultimaTecla = 0;
 float xLeftSub = 999;
 float xRightSub = -999;
 float yTopSub = 130;
 float yDownSub = 110;
 
-int main(int argc, char** argv){//main
+int main(int argc, char** argv) {//main
 
 	alocarMemoria();
 	criarObjetos();
@@ -96,10 +118,11 @@ void alocarMemoria() { //alocaMemoria para os vetores
 	peixesRight = alocarVetor(tamPeixes);
 	mergulhadorLeft = alocarVetor(tamMergulhadores);
 	mergulhadorRight = alocarVetor(tamMergulhadores);
+	tiros = alocarVetorTiros();
 }
 
 void liberarMemoriaVetor(int tam, Objetos** obj) {
-	for (int i = 0; i < tam; i++){
+	for (int i = 0; i < tam; i++) {
 		free(obj[i]);
 	}
 	free(obj);
@@ -111,12 +134,25 @@ Objetos** alocarVetor(int tam) { //aloca memoria para os objetos
 	return objeto;
 }
 
+Tiros** alocarVetorTiros() { //aloca memoria para os objetos
+	Tiros** tiros;
+	tiros = (Tiros**)malloc(sizeof(Tiros*) * qtd_tiros);
+	return tiros;
+}
+
 void criarObjetos() {   //cria os elementos dos vetores
 	for (int i = 0; i < tamPeixes; i++) {
 		peixesLeft[i] = alocarObjetos();
 		peixesRight[i] = alocarObjetos();
+		
+	}
+	for (int i = 0; i < tamMergulhadores; i++){
 		mergulhadorLeft[i] = alocarObjetos();
 		mergulhadorRight[i] = alocarObjetos();
+	}
+	for (int i = 0; i < qtd_tiros; i++)
+	{
+		tiros[i] = alocarTiro();
 	}
 }
 
@@ -127,6 +163,17 @@ Objetos* alocarObjetos() { // inicia os objetos
 	return obj;
 }
 
+Tiros* alocarTiro() { // inicia os objetos
+	Tiros* tiro = (Tiros*)malloc(sizeof(Tiros));
+	tiro->transH = 0;
+	tiro->transV = 0;
+	tiro->direcao = ultimaTecla;
+	tiro->xLeft = 20;
+	tiro->xRight = 40;
+	tiro->yDown = 5;
+	tiro->yTop = 15;
+	return tiro;
+}
 void verificarColisoes() { //chama as verificacoes de colisao
 	verificarColisaoPeixes();
 	verificarColisaoMergulhadores();
@@ -602,6 +649,26 @@ void liberarMergulhadores() { //libera os mergulhadores na superficie e aumenta 
 	}
 }
 
+void alterarTiros() {
+	int i = 0;
+	while (i < qtd_tiros) {
+		if (tiros[i]->transH==0) {
+			if (ultimaTecla==1) {
+				tiros[i]->transH = transH + 22;
+				tiros[i]->transV = transV;
+				tiros[i]->direcao = 1;
+			}
+			else {
+				tiros[i]->transH = transH -25;
+				tiros[i]->transV = transV;
+				tiros[i]->direcao = 0;
+			}
+			break;
+		}
+		i++;
+	}
+}
+
 void imprimirPontuacao() { //imprime a pontuacao na tela
 	float x = 0.0;
 	float y = 220;
@@ -615,7 +682,8 @@ void imprimirPontuacao() { //imprime a pontuacao na tela
 		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, texto[i]);
 	}
 }
-void anima(int valor){ //animacao 
+
+void animacaoPeixes() {
 	for (int i = 0; i < tamPeixes; i++)
 	{
 		//printf("Translate direita %i : %f, Translate: %f, Soma: %f \n", i, peixesRight[i]->xRight, peixesRight[i]->trans, peixesRight[i]->trans + peixesRight[i]->xRight);
@@ -630,6 +698,9 @@ void anima(int valor){ //animacao
 		peixesRight[i]->trans -= 5;
 	}
 
+}
+
+void animacaoMergulhadores() {
 	for (int i = 0; i < tamMergulhadores; i++) {
 		if (mergulhadorLeft[i]->xLeft + mergulhadorLeft[i]->trans > 300) {
 			mergulhadorLeft[i]->trans = 0;
@@ -641,14 +712,71 @@ void anima(int valor){ //animacao
 		}
 		mergulhadorRight[i]->trans -= 3;
 	}
+}
 
+void anima(int valor) { //animacao 
+	animacaoPeixes();
+	animacaoMergulhadores();
+	animarTiros();
 	glutPostRedisplay();
 	glutTimerFunc(150, anima, valor);
+}
+
+void desenharTiro(Tiros* tiro) {
+	glBegin(GL_QUADS);
+	glColor3ub(255,156,100);
+	glVertex2f(tiro->xLeft, tiro->yDown);
+	glVertex2f(tiro->xRight, tiro->yDown);
+	glVertex2f(tiro->xRight, tiro->yTop);
+	glVertex2f(tiro->xLeft, tiro->yTop);
+
+	glEnd();
+}
+
+void criarTiros() {
+	for (int i = 0; i < qtd_tiros; i++)	{
+		if (tiros[i]->transH==0){
+			glPushMatrix();
+			glTranslatef(transH, transV, 0);
+			desenharTiro(tiros[i]);
+			glPopMatrix();
+		}
+		else {
+			glPushMatrix();
+			glTranslatef(tiros[i]->transH, tiros[i]->transV, 0);
+			desenharTiro(tiros[i]);
+			glPopMatrix();
+		}
+	}
+}
+
+void animarTiros() {
+	for (int i = 0; i < qtd_tiros; i++){
+		if (tiros[i]->transH!=0){
+			if (tiros[i]->direcao==1){
+				if (tiros[i]->transH + tiros[i]->xLeft > 300) {
+					tiros[i]->transH = 0;
+				}
+				else {
+					tiros[i]->transH += 5;
+				}
+			}else {
+				if (tiros[i]->transH + tiros[i]->xRight <-300) {
+					tiros[i]->transH = 0;
+				}
+				else {
+					tiros[i]->transH -= 5;
+				}
+			}
+			
+		}
+	}
 }
 
 void desenhar() //desenha tudo 
 {
 	ceu();
+	criarTiros();
 	glPushMatrix();
 	submarino();
 	glPopMatrix();
@@ -669,12 +797,14 @@ void keyboard(unsigned char tecla, int x, int y) {//funcao de teclado
 			if ((transH - xLeftSub) > (-300)) {
 				transH = transH - 2;
 			}
+			ultimaTecla = 0;
 		}
 		if (tecla == 'd')
 		{
 			if ((transH + xRightSub) < 300 + transHInicial) {
 				transH = transH + 2;
 			}
+			ultimaTecla = 1;
 		}
 
 		if (tecla == 'w') {
@@ -689,12 +819,15 @@ void keyboard(unsigned char tecla, int x, int y) {//funcao de teclado
 			}
 
 		}
+
+		if (tecla == ' ') {
+			alterarTiros();
+		}
 	}
 	glutPostRedisplay();
 }
 
-
-void display(){ //funcao display
+void display() { //funcao display
 	glMatrixMode(GL_MODELVIEW);  //coordenadas de desenho
 	glLoadIdentity();
 
@@ -711,7 +844,7 @@ void display(){ //funcao display
 
 }
 
-void tela(GLsizei w, GLsizei h){ //define as configuracoes da tela
+void tela(GLsizei w, GLsizei h) { //define as configuracoes da tela
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
