@@ -6,7 +6,6 @@
 #define janela_altura 500
 #define janela_largura 600
 #define PI 3.14159
-
 typedef struct {
 	float xLeft;
 	float xRight;
