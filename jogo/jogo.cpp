@@ -58,6 +58,8 @@ void alterarTiros();
 void animarTiros();
 void animacaoPeixes();
 void animacaoMergulhadores();
+void colisaoTiros();
+void resetarJogo();
 
 Objetos** peixesLeft;
 Objetos** peixesRight;
@@ -177,6 +179,7 @@ Tiros* alocarTiro() { // inicia os objetos
 void verificarColisoes() { //chama as verificacoes de colisao
 	verificarColisaoPeixes();
 	verificarColisaoMergulhadores();
+	colisaoTiros();
 }
 
 void perderVida() { //diminui a vida e manda o submarino para a posicao inicial
@@ -444,23 +447,29 @@ void peixeRight(Objetos* peixe, int altura, float xLeft, float xRight) { //desen
 	peixe->yTop = altura;
 	peixe->yDown = altura - 20;
 
-	glBegin(GL_TRIANGLES);
-	glColor3ub(237, 216, 146);  // cor
+	glBegin(GL_QUADS);
+	glColor3ub(240, 240, 240);  // cor
 	glVertex2f(peixe->xRight - 10, peixe->yDown);
 	glVertex2f(peixe->xRight - 10, peixe->yTop);
-	glVertex2f(peixe->xLeft, peixe->yTop - 10);
+	glVertex2f(peixe->xLeft, peixe->yTop);
+	glVertex2f(peixe->xLeft, peixe->yDown);
 	glEnd();
 
-	glColor3ub(235, 192, 52);  // cor
+	glColor3ub(240, 240, 240);  // cor
 	glBegin(GL_TRIANGLES);
 	glVertex2f(peixe->xRight, peixe->yDown);
 	glVertex2f(peixe->xRight, peixe->yTop);
 	glVertex2f(peixe->xRight - 20, peixe->yTop - 10);
 	glEnd();
 
-	glColor3ub(0, 0, 0);  // cor
+	glColor3ub(0, 0, 255);  // cor
+	glPointSize(4);
 	glBegin(GL_POINTS);
-	glVertex2f(peixe->xRight - 25, peixe->yTop - 10);
+	glVertex2f(peixe->xRight - 30, peixe->yTop - 10);
+	glEnd();
+
+	glBegin(GL_POINTS);
+	glVertex2f(peixe->xRight - 20, peixe->yTop - 10);
 	glEnd();
 }
 
@@ -650,6 +659,52 @@ void liberarMergulhadores() { //libera os mergulhadores na superficie e aumenta 
 	}
 }
 
+void colisaoTiros() {
+	for (int i = 0; i < qtd_tiros; i++){
+		if (tiros[i]->transH!=0) {
+			for (int j = 0; j < tamPeixes; j++){
+				if (((peixesLeft[j]->yTop>tiros[i]->yTop+tiros[i]->transV)&&(peixesLeft[j]->yDown < tiros[i]->yTop + tiros[i]->transV))
+					||((peixesLeft[j]->yTop>tiros[i]->yDown+tiros[i]->transV) && (peixesLeft[j]->yTop<tiros[i]->yTop+tiros[i]->transV))) {
+					if ((peixesLeft[j]->xLeft + peixesLeft[j]->trans < tiros[i]->xLeft + tiros[i]->transH)
+						&&(peixesLeft[j]->xRight+peixesLeft[j]->trans>tiros[i]->transH+tiros[i]->xLeft)
+						||((tiros[i]->xRight+tiros[i]->transH<peixesLeft[j]->xRight+peixesLeft[j]->trans)
+							&&(tiros[i]->xRight+tiros[i]->transH>peixesLeft[j]->xLeft+peixesLeft[j]->trans))) {
+						peixesLeft[j]->trans = 0;
+						tiros[i]->transH = 0;
+						tiros[i]->transV = 0;
+						pontuacao += 30;
+					}
+				}
+			
+				if (((peixesRight[j]->yTop > tiros[i]->yTop + tiros[i]->transV) && (peixesRight[j]->yDown < tiros[i]->yTop + tiros[i]->transV))
+					|| ((peixesRight[j]->yTop > tiros[i]->yDown + tiros[i]->transV) && (peixesRight[j]->yTop < tiros[i]->yTop + tiros[i]->transV))) {
+					if ((peixesRight[j]->xLeft + peixesRight[j]->trans < tiros[i]->xLeft + tiros[i]->transH)
+						&& (peixesRight[j]->xRight + peixesRight[j]->trans > tiros[i]->transH + tiros[i]->xLeft)
+						|| ((tiros[i]->xRight + tiros[i]->transH < peixesRight[j]->xRight + peixesRight[j]->trans)
+							&& (tiros[i]->xRight + tiros[i]->transH > peixesRight[j]->xLeft + peixesRight[j]->trans))) {
+						peixesRight[j]->trans = 0;
+						tiros[i]->transH = 0;
+						tiros[i]->transV = 0;
+						pontuacao += 30;
+					}
+				}
+			}
+		}
+	}
+	/*if (((yTopSub + transV - transVInicial >= peixesLeft[i]->yDown && yTopSub + transV - transVInicial <= peixesLeft[i]->yTop)
+		|| (yDownSub + transV - transVInicial <= peixesLeft[i]->yTop && yDownSub + transV - transVInicial >= peixesLeft[i]->yDown))) {
+		if ((xRightSub + transH - transHInicial >= peixesLeft[i]->xLeft + peixesLeft[i]->trans && xRightSub + transH - transHInicial <= peixesLeft[i]->xRight + peixesLeft[i]->trans)
+			|| (xLeftSub + transH - transHInicial <= peixesLeft[i]->xRight + peixesLeft[i]->trans && xLeftSub + transH - transHInicial >= peixesLeft[i]->xLeft + peixesLeft[i]->trans)) {
+			transH = transHInicial;
+			transV = transVInicial;
+			peixesLeft[i]->trans = 0;
+			if (vida > 0) {
+				perderVida();
+				pontuacao += 20;
+			}
+		}*/
+}
+
 void alterarTiros() {
 	int i = 0;
 	while (i < qtd_tiros) {
@@ -758,7 +813,7 @@ void animarTiros() {
 					tiros[i]->transH = 0;
 				}
 				else {
-					tiros[i]->transH += 5;
+					tiros[i]->transH += 10;
 				}
 			}
 			else {
@@ -766,7 +821,7 @@ void animarTiros() {
 					tiros[i]->transH = 0;
 				}
 				else {
-					tiros[i]->transH -= 5;
+					tiros[i]->transH -= 10;
 				}
 			}
 
@@ -824,8 +879,33 @@ void keyboard(unsigned char tecla, int x, int y) {//funcao de teclado
 		if (tecla == ' ') {
 			alterarTiros();
 		}
+
+		if (tecla == 27) {
+			resetarJogo();
+		}
 	}
 	glutPostRedisplay();
+}
+
+void resetarJogo() {
+	for (int i = 0; i < tamPeixes; i++){
+		peixesLeft[i]->trans = 0;
+		peixesRight[i]->trans = 0;
+	}
+	for (int i = 0; i < tamMergulhadores; i++) {
+		mergulhadorLeft[i]->trans = 0;
+		mergulhadorRight[i]->trans = 0;
+	}
+	for (int i = 0; i < qtd_tiros; i++) {
+		tiros[i]->transH = 0;
+		tiros[i]->transV = 0;
+	}
+	transH = 30;
+	transV = 110;
+	vida = 5;
+	oxigenio = 10;
+	pontuacao = 0;
+	contadorMergulhadores = 0;
 }
 
 void display() { //funcao display
