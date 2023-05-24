@@ -144,9 +144,9 @@ void criarObjetos() {   //cria os elementos dos vetores
 	for (int i = 0; i < tamPeixes; i++) {
 		peixesLeft[i] = alocarObjetos();
 		peixesRight[i] = alocarObjetos();
-		
+
 	}
-	for (int i = 0; i < tamMergulhadores; i++){
+	for (int i = 0; i < tamMergulhadores; i++) {
 		mergulhadorLeft[i] = alocarObjetos();
 		mergulhadorRight[i] = alocarObjetos();
 	}
@@ -169,11 +169,12 @@ Tiros* alocarTiro() { // inicia os objetos
 	tiro->transV = 0;
 	tiro->direcao = ultimaTecla;
 	tiro->xLeft = 20;
-	tiro->xRight = 40;
-	tiro->yDown = 5;
+	tiro->xRight = 35;
+	tiro->yDown = 10;
 	tiro->yTop = 15;
 	return tiro;
 }
+
 void verificarColisoes() { //chama as verificacoes de colisao
 	verificarColisaoPeixes();
 	verificarColisaoMergulhadores();
@@ -185,6 +186,7 @@ void perderVida() { //diminui a vida e manda o submarino para a posicao inicial
 	transV = transVInicial;
 	oxigenio = 10;
 }
+
 void alterarOxigenio(int valor) { //altera o valor do oxigenio
 	if (transV < 110 && oxigenio>0) {
 		oxigenio--;
@@ -652,14 +654,14 @@ void liberarMergulhadores() { //libera os mergulhadores na superficie e aumenta 
 void alterarTiros() {
 	int i = 0;
 	while (i < qtd_tiros) {
-		if (tiros[i]->transH==0) {
-			if (ultimaTecla==1) {
+		if (tiros[i]->transH == 0) {
+			if (ultimaTecla == 1) {
 				tiros[i]->transH = transH + 22;
 				tiros[i]->transV = transV;
 				tiros[i]->direcao = 1;
 			}
 			else {
-				tiros[i]->transH = transH -25;
+				tiros[i]->transH = transH - 25;
 				tiros[i]->transV = transV;
 				tiros[i]->direcao = 0;
 			}
@@ -686,7 +688,6 @@ void imprimirPontuacao() { //imprime a pontuacao na tela
 void animacaoPeixes() {
 	for (int i = 0; i < tamPeixes; i++)
 	{
-		//printf("Translate direita %i : %f, Translate: %f, Soma: %f \n", i, peixesRight[i]->xRight, peixesRight[i]->trans, peixesRight[i]->trans + peixesRight[i]->xRight);
 		if ((peixesLeft[i]->xLeft + peixesLeft[i]->trans) >= 300) {
 			peixesLeft[i]->trans = 0;
 		}
@@ -724,7 +725,7 @@ void anima(int valor) { //animacao
 
 void desenharTiro(Tiros* tiro) {
 	glBegin(GL_QUADS);
-	glColor3ub(255,156,100);
+	glColor3ub(255, 156, 100);
 	glVertex2f(tiro->xLeft, tiro->yDown);
 	glVertex2f(tiro->xRight, tiro->yDown);
 	glVertex2f(tiro->xRight, tiro->yTop);
@@ -734,8 +735,8 @@ void desenharTiro(Tiros* tiro) {
 }
 
 void criarTiros() {
-	for (int i = 0; i < qtd_tiros; i++)	{
-		if (tiros[i]->transH==0){
+	for (int i = 0; i < qtd_tiros; i++) {
+		if (tiros[i]->transH == 0) {
 			glPushMatrix();
 			glTranslatef(transH, transV, 0);
 			desenharTiro(tiros[i]);
@@ -751,24 +752,25 @@ void criarTiros() {
 }
 
 void animarTiros() {
-	for (int i = 0; i < qtd_tiros; i++){
-		if (tiros[i]->transH!=0){
-			if (tiros[i]->direcao==1){
+	for (int i = 0; i < qtd_tiros; i++) {
+		if (tiros[i]->transH != 0) {
+			if (tiros[i]->direcao == 1) {
 				if (tiros[i]->transH + tiros[i]->xLeft > 300) {
 					tiros[i]->transH = 0;
 				}
 				else {
 					tiros[i]->transH += 5;
 				}
-			}else {
-				if (tiros[i]->transH + tiros[i]->xRight <-300) {
+			}
+			else {
+				if (tiros[i]->transH + tiros[i]->xRight < -300) {
 					tiros[i]->transH = 0;
 				}
 				else {
 					tiros[i]->transH -= 5;
 				}
 			}
-			
+
 		}
 	}
 }
